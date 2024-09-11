@@ -335,10 +335,24 @@ function showResult(response) {
         // 存储 resultID 和 resultLayer 的映射关系
         resultMap.set(currentID, resultLayer);
 
-        $('#ResultList').append($('<li>', {
-            id: `ResultItem-${currentID}`,
-            text: `${calculateType}-${imageType}-${areaCode}-${time}`
-        }));
+        const downloadUrl = `http://localhost:8080/geoserver/wcs?service=WCS&version=2.0.1&request=GetCoverage&coverageId=${geoserverLayerName}&format=image/tiff`
+        const downloadButton = $('<a>', {
+            href: downloadUrl,
+            text: '🔽',
+            class: 'download-button',
+            target: '_blank',
+            download: '' // 这会提示浏览器下载文件而不是直接打开
+        });
+
+        const listItem = $('<li>', {
+            id: `ResultItem-${currentID}`
+        }).append(
+            `${calculateType}-${imageType}-${areaCode}-${time} `
+        ).append(
+            downloadButton
+        );
+
+        $('#ResultList').append(listItem);
 
         // 主动显示结果图层
         $('#ResultItem-' + currentID).click();
