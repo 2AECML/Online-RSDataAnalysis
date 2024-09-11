@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线遥感数据分析系统</title>
+    <link rel="stylesheet" href="static/css/main.css">
+    <link rel="stylesheet" href="static/css/ol-7.5.2.css">
+    <script src="static/js/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.12.1/proj4.min.js"></script>
+    <script src="static/js/ol-7.5.2.js"></script>
+    <script src="static/js/ui.js"></script>
+    <script src="static/js/main.js"></script>
+</head>
+<body>
+    <div class="navbar">
+        在线遥感数据分析系统
+    </div>
+    <div class="container">
+        <div class="navigation">
+            <div class="nav-section">
+                <div class="nav-header" id="LayerHeader">图层</div>
+                <ul class="nav-list" id="LayerList">
+                    <div class="nav-subheader" id="VectorLayerHeader">矢量图层</div>
+                    <ul class="nav-sublist" id="VectorLayerList">
+                        <li id="ProvincialLayer">省级行政区划</li>
+                        <li id="PrefecturalLayer">地级行政区划</li>
+                        <li id="CountyLayer">县级行政区划</li>
+                    </ul>
+                    <div class="nav-subheader" id="RasterLayerHeader">栅格图层</div>
+                    <ul class="nav-sublist" id="RasterLayerList">
+                        <li id="ImageLayer">影像图层</li>
+                    </ul>
+                    <div class="nav-subheader" id="RemoteLayerHeader-Landsat8">Landsat8遥感图层</div>
+                    <ul class="nav-sublist" id="RemoteLayerList-Landsat8">
+                        <li id="Landsat8-118040">Landsat8-118040</li>
+                        <li id="Landsat8-118041">Landsat8-118041</li>
+                        <li id="Landsat8-119040">Landsat8-119040</li>
+                        <li id="Landsat8-119041">Landsat8-119041</li>
+                    </ul>
+                    <div class="nav-subheader" id="RemoteLayerHeader-Sentinel-2">Sentinel-2遥感图层</div>
+                    <ul class="nav-sublist" id="RemoteLayerList-Sentinel-2">
+
+                    </ul>
+                    <div class="nav-subheader" id="RemoteLayerHeader-MODIS">MODIS遥感图层</div>
+                    <ul class="nav-sublist" id="RemoteLayerList-MODIS">
+
+                    </ul>
+                </ul>
+            </div>
+            <div class="nav-section">
+                <div class="nav-header" id="FunctionHeader">功能</div>
+                <ul class="nav-list" id="FunctionList">
+                    <li id="NDVI">归一化植被指数</li>
+                    <li id="NDWI">归一化水体指数</li>
+                    <li id="NDBI">归一化建筑指数</li>
+                    <li id="CDI">云和阴影指数</li>
+                </ul>
+            </div>
+            <div class="nav-section">
+                <div class="nav-header" id="ResultHeader">结果</div>
+                <ul class="nav-list" id="ResultList">
+                    
+                </ul>
+            </div>
+            <div class="resize-handle"></div>
+        </div>
+        <div class="main-content">
+            <div id="MapContainer"></div>
+        </div>
+        <button class="draw-control-button" id="ConfirmButton">确认</button>
+        <button class="draw-control-button" id="CancelButton">取消</button>
+        <!-- 日期选择组件 -->
+        <div class="date-picker">
+            <label for="YearSelect">年份:</label>
+            <select id="YearSelect" class="date-select">
+                <!-- Options will be populated by JavaScript -->
+            </select>
+
+            <label for="MonthSelect">月份:</label>
+            <select id="MonthSelect" class="date-select">
+
+            </select>
+        </div>
+    </div>
+</body>
+</html>

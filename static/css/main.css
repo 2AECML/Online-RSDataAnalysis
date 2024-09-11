@@ -1,0 +1,261 @@
+* {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+.navbar {
+    position: sticky;
+    top: 0;
+    background-color: #333;
+    color: #fff;
+    height: 6%;
+    padding: 10px;
+    text-align: center;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    height: 94%;
+}
+
+.navigation {
+    width: 20%;
+    height: 100%;
+    background-color: #f8f9fa; /* 更明亮的背景色 */
+    padding: 10px;
+    border-right: 2px solid #ddd; /* 边框加粗 */
+    overflow-y: auto; /* 启用滚动条以防内容溢出 */
+    transition: background-color 0.3s; /* 添加过渡效果 */
+    position: relative; /* 使拖动条定位在右侧 */
+}
+
+.nav-section {
+    padding-bottom: 10px;
+}
+
+.nav-header {
+    cursor: pointer;
+    background-color: #e9ecef;
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 1.1em; /* 增加字体大小 */
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.nav-header:hover {
+    background-color: #dee2e6;
+    transform: scale(1.02);
+}
+
+.nav-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: none; /* 通过 JavaScript 控制显示 */
+}
+
+.nav-list li {
+    padding: 5px 7px;
+    border-bottom: 1px solid #ddd;
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 0.85em;
+}
+
+.nav-list li:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.02);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-list li::before {
+    content: "•";
+    margin-right: 10px;
+    color: #007bff;
+    font-size: 18px;
+}
+
+.nav-list li.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.nav-list li.active::before {
+    content: "✓"; 
+    margin-right: 10px;
+    color: #fff;  
+    font-size: 18px; 
+}
+
+.nav-subheader {
+    display: flex;
+    font-weight: 700;
+    background-color: #f0f2f5; /* 改为更浅的颜色 */
+    padding: 8px;
+    padding-left: 8px;
+    border-radius: 4px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    font-size: 0.88em;
+    border: 1px solid #dcdcdc; /* 添加边框 */
+    align-items: center;
+}
+
+.nav-subheader:hover {
+    background-color: #e9ecef; /* 更改背景颜色以突出 hover 效果 */
+    border-color: #b0b0b0; /* 改变边框颜色 */
+    transform: scale(1.01); /* 添加轻微的缩放效果 */
+}
+
+.nav-subheader::before {
+    content: "▶"; /* 默认符号 */
+    margin-right: 5px;
+    color: #3c3c3c;
+    font-size: 10px; /* 调整符号大小 */
+    display: inline-block; /* 使 transform 生效 */
+    transition: transform 0.3s; /* 添加平滑过渡效果 */
+}
+
+.nav-subheader.active::before {
+    content: "▶"; /* 保持符号不变 */
+    margin-right: 5px;
+    color: #3c3c3c;
+    font-size: 10px; /* 调整符号大小 */
+    display: inline-block; /* 使 transform 生效 */
+    transform: rotate(90deg); /* 顺时针旋转 90 度 */
+    transition: transform 0.3s; /* 添加平滑过渡效果 */
+}
+
+.nav-subheader.list-item-active {
+    border-color: #2196f3;
+    background-color: #e3f2fd;
+}
+
+.nav-sublist {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: none; /* 默认隐藏子列表 */
+}
+
+.resize-handle {
+    width: 5px; /* 拖动条的宽度 */
+    background-color: #ccc; /* 拖动条的颜色 */
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    cursor: ew-resize; /* 拖动光标样式 */
+    z-index: 1;
+}
+
+.main-content {
+    flex: 1;
+    width: 80%;
+    min-width: 50%;
+    height: 100%;
+    padding: 2px;
+}
+
+#MapContainer {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.draw-control-button {
+    position: fixed;
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    font-size: 16px;
+    display: none;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, transform 0.2s, opacity 0.3s;
+}
+
+.draw-control-button:hover {
+    background-color: #0056b3;
+}
+
+.draw-control-button:active {
+    background-color: #003d7a; /* 点击时的背景色 */
+    transform: scale(0.92); /* 点击时稍微缩小 */
+}
+
+#ConfirmButton {
+    bottom: 20px;
+    right: 20px;
+}
+
+#CancelButton {
+    bottom: 20px;
+    right: 110px;
+}
+
+/* 日期选择器的容器样式 */
+.date-picker {
+    position: absolute;
+    top: 60px;  /* 调整垂直位置 */
+    right: 15px; /* 调整水平位置 */
+    background-color: #ffffff;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-width: 200px; /* 设置最大宽度 */
+    font-family: Arial, sans-serif; /* 设置字体 */
+}
+
+/* 标签样式 */
+.date-picker label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: #333;
+    font-weight: 600;
+}
+
+/* 选择框的样式 */
+.date-select {
+    display: block;
+    width: 100%; /* 适应容器宽度 */
+    padding: 4px 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    background-color: #f9f9f9;
+    color: #333;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* 选择框焦点样式 */
+.date-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+    outline: none;
+}
+
+/* 选择框的选项样式 */
+.date-select option {
+    background-color: #fff;
+    color: #333;
+}
