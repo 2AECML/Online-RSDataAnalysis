@@ -47,11 +47,13 @@ $(document).ready(function() {
         if ($(this).hasClass('active')) {
             $(this).removeClass('active');
             $("#RemoteLayerHeader-Landsat8").removeClass('list-item-active');
+            $("#ToggleButton").css('display', 'none');
         }
         else {
             $(this).parent().children().removeClass('active');
             $(this).addClass('active'); 
             $("#RemoteLayerHeader-Landsat8").addClass('list-item-active');
+            $("#ToggleButton").css('display', 'block');
         }
     });
 
@@ -64,11 +66,13 @@ $(document).ready(function() {
         if ($(this).hasClass('active')) {
             $(this).removeClass('active');
             $("#RemoteLayerHeader-Sentinel-2").removeClass('list-item-active');
+            $("#ToggleButton").css('display', 'none');
         }
         else {
             $(this).parent().children().removeClass('active');
             $(this).addClass('active'); 
             $("#RemoteLayerHeader-Sentinel-2").addClass('list-item-active');
+            $("#ToggleButton").css('display', 'block');
         }
     });
 
@@ -81,11 +85,13 @@ $(document).ready(function() {
         if ($(this).hasClass('active')) {
             $(this).removeClass('active');
             $("#RemoteLayerHeader-MODIS").removeClass('list-item-active');
+            $("#ToggleButton").css('display', 'none');
         }
         else {
             $(this).parent().children().removeClass('active');
             $(this).addClass('active'); 
             $("#RemoteLayerHeader-MODIS").addClass('list-item-active');
+            $("#ToggleButton").css('display', 'block');
         }
     });
 
@@ -105,6 +111,10 @@ $(document).ready(function() {
     $('#ResultList').on('click', 'li', function () {
         $('#ResultList').slideDown();
         $(this).toggleClass('active');
+    });
+
+    $('#ToggleButton').click(function () {
+        $('.date-picker').toggle();;
     });
 
     // 改变navigation栏的宽度

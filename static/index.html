@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="static/css/main.css">
     <link rel="stylesheet" href="static/css/ol-7.5.2.css">
     <script src="static/js/jquery-3.7.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.12.1/proj4.min.js"></script>
     <script src="static/js/ol-7.5.2.js"></script>
     <script src="static/js/ui.js"></script>
     <script src="static/js/main.js"></script>
@@ -68,19 +67,16 @@
         <div class="main-content">
             <div id="MapContainer"></div>
         </div>
-        <button class="draw-control-button" id="ConfirmButton">确认</button>
-        <button class="draw-control-button" id="CancelButton">取消</button>
-        <!-- 日期选择组件 -->
-        <div class="date-picker">
-            <label for="YearSelect">年份:</label>
-            <select id="YearSelect" class="date-select">
-                <!-- Options will be populated by JavaScript -->
-            </select>
-
-            <label for="MonthSelect">月份:</label>
-            <select id="MonthSelect" class="date-select">
-
-            </select>
+        <button class="draw-control-button" id="SubmitButton">提交</button>
+        <button class="draw-control-button" id="ResetButton">重置</button>
+        <div class="date-picker-wrapper">
+            <button id="ToggleButton" class="toggle-button">☰</button>
+            <div class="date-picker">
+                <label for="YearSelect">年份:</label>
+                <select id="YearSelect" class="date-select"></select>
+                <label for="MonthSelect">月份:</label>
+                <select id="MonthSelect" class="date-select"></select>
+            </div>
         </div>
     </div>
 </body>

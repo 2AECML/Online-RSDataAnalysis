@@ -7,6 +7,7 @@ calInfo.areaCode = '';
 calInfo.time = '';
 calInfo.coordinates = [];
 
+let curLayerName = '';
 
 // 创建地图
 var map = new ol.Map({
@@ -122,7 +123,20 @@ $(document).ready(function () {
         }
         else if (/^Landsat8*/.test(id)) {
             // 处理遥感图层
-            resetRemoteLayer(id);
+            // resetRemoteLayer(id);
+
+            map.removeLayer(remoteLayer);
+            if (id === curLayerName) {
+                curLayerName = '';
+                remoteSource.updateParams({ 'LAYERS': '' });
+            }
+            else {
+                curLayerName = id;
+                initAvailableDates();
+                remoteSource.updateParams({ 'LAYERS': '	local:' + curLayerName + '-' + calInfo.time });
+                map.addLayer(remoteLayer);
+                console.log('切换遥感图层:', curLayerName + '-' + calInfo.time);
+            }
         }
         else if (/^NDVI|NDWI|NDBI|CDI$/.test(id)) {
             // 处理选择功能
@@ -157,37 +171,30 @@ function toggleLayer(layer) {
 }
 
 
-let curLayerName = '';
-let curTime = '';
-async function resetRemoteLayer(layerName = curLayerName) {
+// let curLayerName = '';
+// function resetRemoteLayer(layerName) {
 
-    if (curLayerName === layerName && curTime === calInfo.time) {
-        toggleLayer(remoteLayer);
-        return;
-    }
+//     if (curLayerName === layerName) {
+//         toggleLayer(remoteLayer);
+//         return;
+//     }
 
-    try {
-        await initAvailableDates(layerName.split('-')[0], layerName.split('-')[1]);
+//     console.log('切换遥感图层:', layerName);
 
-        console.log('切换遥感图层:', layerName);
-    
-        console.log('时间: ', calInfo.time)
-    
-        remoteSource.updateParams({ 'LAYERS': '	local:' + layerName + '-' + calInfo.time });
-        calInfo.imageType = layerName.split('-')[0];
-        calInfo.areaCode = layerName.split('-')[1];
-    
-        curLayerName = layerName;
-        curTime = calInfo.time;
-    
-        if (!map.getLayers().getArray().includes(remoteLayer)) {
-            map.addLayer(remoteLayer);
-        }
-    }
-    catch (error) {
-        console.error('重置遥感图层失败:', error);
-    }
-}
+//     console.log('时间: ', calInfo.time)
+
+//     remoteSource.updateParams({ 'LAYERS': '	local:' + layerName + '-' + calInfo.time });
+//     calInfo.imageType = layerName.split('-')[0];
+//     calInfo.areaCode = layerName.split('-')[1];
+
+//     curLayerName = layerName;
+
+//     if (!map.getLayers().getArray().includes(remoteLayer)) {
+//         map.addLayer(remoteLayer);
+//     }
+
+//     initAvailableDates(layerName.split('-')[0], layerName.split('-')[1]);
+// }
 
 
 // 创建绘制源
@@ -233,7 +240,7 @@ function startSelection() {
     });
 
     // 确认按钮点击事件
-    $("#ConfirmButton").off('click').on('click', function () {
+    $("#SubmitButton").off('click').on('click', function () {
         // 如果没有选择范围则直接返回
         if (!map.getLayers().getArray().includes(drawLayer)) {
             return;
@@ -251,7 +258,7 @@ function startSelection() {
     });
 
     // 取消按钮点击事件
-    $("#CancelButton").off('click').on('click', function () {
+    $("#ResetButton").off('click').on('click', function () {
         map.removeLayer(drawLayer);
 
         startSelection(); // 重新开始选择
@@ -344,89 +351,91 @@ function getResultLayerByID(id) {
 }
 
 
-function initAvailableDates(imageType, areaCode) {
+function initAvailableDates() {
     // 清空现有选项
     $('#YearSelect').empty();
     $('#MonthSelect').empty();
 
-    return new Promise((resolve, reject) => {
-        // 通过 AJAX 发送数据到服务器
-        $.ajax({
-            type: "POST",
-            url: "/get_available_dates",
-            contentType: "application/json",
-            data: JSON.stringify({
-                imageType: imageType,
-                areaCode: areaCode
-            }),
-            dataType: "json",
-            success: function (response) {
-                console.log('Server response:', response);
-                // 获取年份和月份数据
-                var dates = response.dates;
+    // 通过 AJAX 发送数据到服务器
+    $.ajax({
+        type: "POST",
+        url: "/get_available_dates",
+        contentType: "application/json",
+        data: JSON.stringify({
+            imageType: curLayerName.split('-')[0],
+            areaCode: curLayerName.split('-')[1]
+        }),
+        dataType: "json",
+        success: function (response) {
+            console.log('Server response:', response);
+            // 获取年份和月份数据
+            var dates = response.dates;
 
-                // 提取并填充年份下拉列表
-                var years = [...new Set(dates.map(date => date.year))];
-                years.forEach(year => {
-                    $('#YearSelect').append($('<option>', {
-                        value: year,
-                        text: year
+            // 提取并填充年份下拉列表
+            var years = [...new Set(dates.map(date => date.year))].sort((a, b) => a - b);
+            years.forEach(year => {
+                $('#YearSelect').append($('<option>', {
+                    value: year,
+                    text: year
+                }));
+            });
+
+            // 根据所选年份更新月份下拉列表
+            function updateMonths(selectedYear) {
+                $('#MonthSelect').empty(); // 清空现有选项
+                // 从 dates 中筛选出对应年份的月份，并去重
+                var months = [...new Set(dates
+                    .filter(date => date.year === selectedYear)
+                    .map(date => date.month))];
+
+                // 按月份升序排序
+                months.sort((a, b) => a - b);
+
+                // 填充月份下拉列表
+                months.forEach(month => {
+                    $('#MonthSelect').append($('<option>', {
+                        value: month,
+                        text: month
                     }));
                 });
 
-                // 根据所选年份更新月份下拉列表
-                function updateMonths(selectedYear) {
-                    $('#MonthSelect').empty(); // 清空现有选项
-                    dates
-                        .filter(date => date.year === selectedYear)
-                        .forEach(date => {
-                            $('#MonthSelect').append($('<option>', {
-                                value: date.month,
-                                text: date.month
-                            }));
-                        });
+                // 默认选择最后一个月份（即最新的月份）
+                if (months.length > 0) {
+                    $('#MonthSelect').val(months[months.length - 1]);
                 }
-
-                // 初始化月份下拉列表
-                $('#YearSelect').change(function () {
-                    var selectedYear = $(this).val();
-                    updateMonths(selectedYear);
-                    onSelectionChange();
-                });
-
-                $('#MonthSelect').change(function () {
-                    onSelectionChange();
-                });
-
-                // 默认选择第一个年份并更新月份
-                if (years.length > 0) {
-                    $('#YearSelect').val(years[0]).change();
-                }
-
-                resolve();
-            },
-            error: function (error) {
-                console.error('Error:', error);
-                reject(error);
             }
-        });
+
+            // 初始化月份下拉列表
+            $('#YearSelect').change(function () {
+                var selectedYear = $(this).val();
+                updateMonths(selectedYear);
+                onSelectionChange();
+            });
+
+            $('#MonthSelect').change(function () {
+                onSelectionChange();
+            });
+
+            // 默认选择第一个年份并更新月份
+            if (years.length > 0) {
+                $('#YearSelect').val(years[0]).change();
+            }
+        },
+        error: function (error) {
+            console.error('Error:', error);
+        }
     });
 }
 
-
 // 处理年份和月份选择完成后的操作
-let curSelectedYear = '';
-let curSelectedMonth = '';
 function onSelectionChange() {
     var selectedYear = $('#YearSelect').val();
     var selectedMonth = $('#MonthSelect').val();
 
-    if (selectedYear && selectedMonth && (selectedYear !== curSelectedYear || selectedMonth !== curSelectedMonth)) {
+    if (selectedYear && selectedMonth) {
         // 执行选择完成后的操作
         console.log(`Year: ${selectedYear}, Month: ${selectedMonth}`);
         calInfo.time = `${selectedYear}${selectedMonth}`;
-        resetRemoteLayer();
-        curSelectedYear = selectedYear;
-        curSelectedMonth = selectedMonth;
+        remoteSource.updateParams({ 'LAYERS': '	local:' + curLayerName + '-' + calInfo.time });
     }
 }
