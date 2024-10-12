@@ -43,7 +43,7 @@ $(document).ready(function() {
         $('#RemoteLayerList-Landsat8').slideToggle();
     });
 
-    $('#RemoteLayerList-Landsat8 li').click(function () {
+    $('#RemoteLayerList-Landsat8').on('click', 'li', function () {
         if ($(this).hasClass('active')) {
             $(this).removeClass('active');
             $("#RemoteLayerHeader-Landsat8").removeClass('list-item-active');
@@ -62,7 +62,7 @@ $(document).ready(function() {
         $('#RemoteLayerList-Sentinel-2').slideToggle();
     });
 
-    $('#RemoteLayerList-Sentinel-2 li').click(function () {
+    $('#RemoteLayerList-Sentinel-2').on('click', 'li', function () {
         if ($(this).hasClass('active')) {
             $(this).removeClass('active');
             $("#RemoteLayerHeader-Sentinel-2").removeClass('list-item-active');
@@ -70,7 +70,7 @@ $(document).ready(function() {
         }
         else {
             $(this).parent().children().removeClass('active');
-            $(this).addClass('active'); 
+            $(this).addClass('active');
             $("#RemoteLayerHeader-Sentinel-2").addClass('list-item-active');
             $("#ToggleButton").css('display', 'block');
         }
@@ -81,7 +81,7 @@ $(document).ready(function() {
         $('#RemoteLayerList-MODIS').slideToggle();
     });
 
-    $('#RemoteLayerList-MODIS li').click(function () {
+    $('#RemoteLayerList-MODIS li').on('click', 'li', function () {
         if ($(this).hasClass('active')) {
             $(this).removeClass('active');
             $("#RemoteLayerHeader-MODIS").removeClass('list-item-active');
@@ -89,7 +89,7 @@ $(document).ready(function() {
         }
         else {
             $(this).parent().children().removeClass('active');
-            $(this).addClass('active'); 
+            $(this).addClass('active');
             $("#RemoteLayerHeader-MODIS").addClass('list-item-active');
             $("#ToggleButton").css('display', 'block');
         }

@@ -53,6 +53,7 @@ def create_workspace_if_not_exists(workspace_name):
     except Exception as e:
         print(f"Error creating workspace: {e}")
 
+
 def get_geotiff_metadata(file_path):
     with rasterio.open(file_path) as src:
         metadata = src.meta

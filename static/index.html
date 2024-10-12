@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
     <script src="static/js/ui.js"></script>
     <script src="static/js/main.js"></script>
 </head>
+
 <body>
     <div class="navbar">
         在线遥感数据分析系统
@@ -32,10 +34,7 @@
                     </ul>
                     <div class="nav-subheader" id="RemoteLayerHeader-Landsat8">Landsat8遥感图层</div>
                     <ul class="nav-sublist" id="RemoteLayerList-Landsat8">
-                        <li id="Landsat8-118040">Landsat8-118040</li>
-                        <li id="Landsat8-118041">Landsat8-118041</li>
-                        <li id="Landsat8-119040">Landsat8-119040</li>
-                        <li id="Landsat8-119041">Landsat8-119041</li>
+
                     </ul>
                     <div class="nav-subheader" id="RemoteLayerHeader-Sentinel-2">Sentinel-2遥感图层</div>
                     <ul class="nav-sublist" id="RemoteLayerList-Sentinel-2">
@@ -59,13 +58,16 @@
             <div class="nav-section">
                 <div class="nav-header" id="ResultHeader">结果</div>
                 <ul class="nav-list" id="ResultList">
-                    
+
                 </ul>
             </div>
             <div class="resize-handle"></div>
         </div>
         <div class="main-content">
             <div id="MapContainer"></div>
+            <div id="Loading" class="loading-bar">
+                <div class="progress"></div>
+            </div>
         </div>
         <button class="draw-control-button" id="SubmitButton">提交</button>
         <button class="draw-control-button" id="ResetButton">重置</button>
@@ -79,5 +81,23 @@
             </div>
         </div>
     </div>
+
+    <div id="DialogOverlay" class="overlay"></div>
+    <div id="CheckDialog" class="dialog">
+        <h2>选择信息</h2>
+        <h3 id="CalculateTypesTitle">选择功能：</h3>
+        <p id="CalculateTypesInfo"></p>
+        <h3 id="ImageNameTitle">选择图像：</h3>
+        <p id="ImageNameInfo"></p>
+        <h3 id="DateTitle">选择日期：</h3>
+        <p id="DateInfo"></p>
+        <h3 id="CoordinatesTitle">选择范围：</h3>
+        <p id="CoordinatesInfo"></p>
+        <div class="buttons-area">
+            <button id="CancelButton">取消</button>
+            <button id="ConfirmButton">确认</button>
+        </div>
+    </div>
 </body>
+
 </html>

@@ -41,7 +41,8 @@ def get_available_area_codes(image_type):
     image_path = os.path.join(DATA_PATH, image_type)
     
     if not os.path.isdir(image_path):
-        raise ValueError(f'影像类型目录 "{image_path}" 不存在')
+        print(f'警告: 影像类型目录 "{image_path}" 不存在')
+        return []
 
     # 遍历影像类型目录中的每个子目录
     for subdir in os.listdir(image_path):
@@ -53,6 +54,3 @@ def get_available_area_codes(image_type):
     # 返回一个包含 area_code 的排序列表
     return sorted(area_codes)
 
-
-# print(get_available_area_codes('landsat8'))
-# print(get_available_dates('landsat8', '118041'))

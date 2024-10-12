@@ -18,30 +18,11 @@ var map = new ol.Map({
 });
 
 
-// map.on('click', function (event) {
-//     // 获取点击位置的原始坐标（EPSG:3857）
-//     const coords = event.coordinate;
-
-//     // 将EPSG:3857坐标转换为经纬度（EPSG:4326）
-//     const lonLat = ol.proj.toLonLat(coords);
-//     const lon = lonLat[0].toFixed(6);
-//     const lat = lonLat[1].toFixed(6);
-
-//     // 如果需要将经纬度转换回EPSG:3857坐标
-//     const mercatorCoords = ol.proj.fromLonLat([lon, lat]);
-//     console.log('转换回EPSG:3857坐标:', mercatorCoords);
-
-//     // 将 EPSG:3857 坐标转换回 EPSG:4326（经纬度）坐标
-//     const lonLatCoords = ol.proj.toLonLat(mercatorCoords);
-//     console.log('转换回EPSG:4326坐标:', lonLatCoords);
-// });
-
-
 const provincialLayer = new ol.layer.Tile({
     source: new ol.source.TileWMS({
         url: 'http://localhost:8080/geoserver/wms',
         params: {
-            'LAYERS': '	local:省级',
+            'LAYERS': 'local:省级',
             'TILED': true
         },
         serverType: 'geoserver',
@@ -107,6 +88,7 @@ $(document).ready(function () {
 
     map.setTarget("MapContainer");
 
+    getAvailableAreas();
 
     $('.nav-list').on('click', 'li', function () {
         var id = $(this).attr('id');
@@ -133,7 +115,7 @@ $(document).ready(function () {
             else {
                 curLayerName = id;
                 initAvailableDates();
-                remoteSource.updateParams({ 'LAYERS': '	local:' + curLayerName + '-' + calInfo.time });
+                // remoteSource.updateParams({ 'LAYERS': 'local:' + curLayerName + '-' + calInfo.time });
                 map.addLayer(remoteLayer);
                 console.log('切换遥感图层:', curLayerName + '-' + calInfo.time);
             }
@@ -155,7 +137,6 @@ $(document).ready(function () {
         }
     });
 
-
     $("#ImageLayer").click();
 });
 
@@ -169,32 +150,6 @@ function setSingleLayer(layer) {
 function toggleLayer(layer) {
     map.getLayers().getArray().includes(layer) ? map.removeLayer(layer) : map.addLayer(layer);
 }
-
-
-// let curLayerName = '';
-// function resetRemoteLayer(layerName) {
-
-//     if (curLayerName === layerName) {
-//         toggleLayer(remoteLayer);
-//         return;
-//     }
-
-//     console.log('切换遥感图层:', layerName);
-
-//     console.log('时间: ', calInfo.time)
-
-//     remoteSource.updateParams({ 'LAYERS': '	local:' + layerName + '-' + calInfo.time });
-//     calInfo.imageType = layerName.split('-')[0];
-//     calInfo.areaCode = layerName.split('-')[1];
-
-//     curLayerName = layerName;
-
-//     if (!map.getLayers().getArray().includes(remoteLayer)) {
-//         map.addLayer(remoteLayer);
-//     }
-
-//     initAvailableDates(layerName.split('-')[0], layerName.split('-')[1]);
-// }
 
 
 // 创建绘制源
@@ -249,12 +204,7 @@ function startSelection() {
         calInfo.imageType = curLayerName.split('-')[0];
         calInfo.areaCode = curLayerName.split('-')[1];
 
-        // 发送相关数据到服务器
-        sendInfo();
-
-        map.removeLayer(drawLayer);
-
-        startSelection(); // 重新开始选择
+        showDialog();
     });
 
     // 取消按钮点击事件
@@ -280,7 +230,6 @@ function sendInfo() {
 
     console.log('转换至EPSG:4326坐标:', coordinates4326);
 
-
     // 通过 AJAX 发送数据到服务器
     $.ajax({
         type: "POST",
@@ -294,12 +243,18 @@ function sendInfo() {
             coordinates: coordinates4326
         }),
         dataType: "json",
+        beforeSend: function () {
+            showLoading();
+        },
         success: function (response) {
             console.log('Server response:', response);
             showResult(response);
         },
         error: function (error) {
             console.error('Error:', error);
+        },
+        complete: function () {
+            hideLoading();
         }
     });
 }
@@ -450,6 +405,99 @@ function onSelectionChange() {
         // 执行选择完成后的操作
         console.log(`Year: ${selectedYear}, Month: ${selectedMonth}`);
         calInfo.time = `${selectedYear}${selectedMonth}`;
-        remoteSource.updateParams({ 'LAYERS': '	local:' + curLayerName + '-' + calInfo.time });
+        remoteSource.updateParams({ 'LAYERS': 'local:' + curLayerName + '-' + calInfo.time });
     }
+}
+
+function getAvailableAreas() {
+    // 通过 AJAX 发送数据到服务器
+    $.ajax({
+        type: "POST",
+        url: "/get_available_types_and_areas",
+        contentType: "application/json",
+        data: JSON.stringify({}),
+        dataType: "json",
+        success: function (response) {
+            console.log('Server response:', response);
+
+            for (const imageType in response.areaCodes) {
+                // console.log(response.areaCodes[imageType])
+
+                for (const areaCode of response.areaCodes[imageType]) {
+                    console.log(areaCode);
+                    const listItem = $('<li>', {
+                        id: `${imageType}-${areaCode}`
+                    }).append(
+                        `${imageType}-${areaCode}`
+                    );
+                    if (imageType === 'Landsat8') {
+                        $("#RemoteLayerList-Landsat8").append(listItem);
+                    }
+                    else if (imageType === 'Sentinel2') {
+                        $("#RemoteLayerList-Sentinel-2").append(listItem);
+                    }
+                    else if (imageType === 'MODIS') { 
+                        $("#RemoteLayerList-MODIS").append(listItem);
+                    }
+                }
+            }
+        },
+        error: function (error) {
+            console.error('Error:', error);
+        }
+    });
+}
+
+
+function showDialog() {
+    const coordinates3857 = calInfo.coordinates[0];
+    let coordinates4326 = [];
+    for (let i = 0; i < coordinates3857.length; i++) {
+        coordinates4326[i] = ol.proj.toLonLat(coordinates3857[i]);
+    }
+
+    // 显示对话框和背景
+    $('#DialogOverlay').fadeIn();
+    $('#CheckDialog').fadeIn();
+
+    // 填充信息
+    $('#CalculateTypesInfo').text(Array.from(calInfo.calculateTypes).join(', '));
+    $("#ImageNameInfo").text(`${calInfo.imageType}-${calInfo.areaCode}`);
+    $('#DateInfo').text(calInfo.time);
+    $('#CoordinatesInfo').html(coordinates4326.map(coord => `(${coord[0].toFixed(4)}, ${coord[1].toFixed(4)})`).join('<br>'));
+
+    // 确认按钮事件
+    $('#ConfirmButton').off('click').on('click', function() {
+        console.log('用户确认:', coordinates4326, calInfo.calculateTypes);
+        closeDialog();
+
+        // 发送相关数据到服务器
+        sendInfo();
+
+        map.removeLayer(drawLayer);
+
+        startSelection(); // 重新开始选择
+    });
+
+    // 取消按钮事件
+    $('#CancelButton').off('click').on('click', function() {
+        console.log('用户取消');
+        closeDialog();
+    });
+}
+
+
+function closeDialog() {
+    $('#DialogOverlay').fadeOut();
+    $('#CheckDialog').fadeOut();
+}
+
+
+function showLoading() {
+    $("#Loading").fadeIn();
+}
+
+
+function hideLoading() {
+    $("#Loading").fadeOut();
 }

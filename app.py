@@ -64,6 +64,22 @@ def get_available_dates():
     })
 
 
+img_types = ['Landsat8', 'Sentinel2', 'MODIS']
+@app.route('/get_available_types_and_areas', methods=['POST'])
+def get_available_types_and_areas():
+    area_codes_map = {}
+    for img_type in img_types:
+        area_codes = data_manager.get_available_area_codes(img_type)
+        area_codes_map[img_type] = area_codes
+        print(img_type, area_codes)
+
+    return jsonify({
+        'status': 'success',
+        'imgTypes': img_types,
+        'areaCodes': area_codes_map
+    })
+
+
 def process_calculations(image_type, area_code, time, coordinates, calculate_types):
     results = {}
     
