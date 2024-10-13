@@ -22,7 +22,8 @@ const provincialLayer = new ol.layer.Tile({
     source: new ol.source.TileWMS({
         url: 'http://localhost:8080/geoserver/wms',
         params: {
-            'LAYERS': 'local:省级',
+            'LAYERS': 'local:LAND_202311_RGB',
+            // 'STYLES': 'local:TrueColor',
             'TILED': true
         },
         serverType: 'geoserver',
@@ -88,7 +89,7 @@ $(document).ready(function () {
 
     map.setTarget("MapContainer");
 
-    getAvailableAreas();
+    getAvailableImages();
 
     $('.nav-list').on('click', 'li', function () {
         var id = $(this).attr('id');
@@ -409,11 +410,11 @@ function onSelectionChange() {
     }
 }
 
-function getAvailableAreas() {
+function getAvailableImages() {
     // 通过 AJAX 发送数据到服务器
     $.ajax({
         type: "POST",
-        url: "/get_available_types_and_areas",
+        url: "/get_available_images",
         contentType: "application/json",
         data: JSON.stringify({}),
         dataType: "json",

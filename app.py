@@ -21,17 +21,15 @@ def calculate():
     calculate_types = data.get('calculateTypes')
     coordinates = data.get('coordinates')
     image_type = data.get('imageType')
-    area_code = data.get('areaCode')
     time = data.get('time')
 
     # 打印接收到的数据
     print('calculateTypes:', calculate_types)
     print('coordinates:', coordinates)
     print('imageType:', image_type)
-    print('areaCode:', area_code)
     print('time:', time)
 
-    results = process_calculations(image_type, area_code, time, coordinates, calculate_types)
+    results = process_calculations(image_type, time, coordinates, calculate_types)
 
     # 返回成功响应
     return jsonify({
@@ -39,7 +37,6 @@ def calculate():
         'calculateTypes': calculate_types,
         'coordinates': coordinates,
         'imageType': image_type,
-        'areaCode': area_code,
         'time': time,
         'results': results
     })
@@ -65,8 +62,8 @@ def get_available_dates():
 
 
 img_types = ['Landsat8', 'Sentinel2', 'MODIS']
-@app.route('/get_available_types_and_areas', methods=['POST'])
-def get_available_types_and_areas():
+@app.route('/get_available_images', methods=['POST'])
+def get_available_images():
     area_codes_map = {}
     for img_type in img_types:
         area_codes = data_manager.get_available_area_codes(img_type)
@@ -80,20 +77,20 @@ def get_available_types_and_areas():
     })
 
 
-def process_calculations(image_type, area_code, time, coordinates, calculate_types):
+def process_calculations(image_type, time, coordinates, calculate_types):
     results = {}
     
     if 'NDVI' in calculate_types:
-        results['NDVI'] = processor.calculate_ndvi(image_type, area_code, time, coordinates)
+        results['NDVI'] = processor.calculate_ndvi(image_type, time, coordinates)
     
     if 'NDWI' in calculate_types:
-        results['NDWI'] = processor.calculate_ndwi(image_type, area_code, time, coordinates)
+        results['NDWI'] = processor.calculate_ndwi(image_type, time, coordinates)
     
     if 'NDBI' in calculate_types:
-        results['NDBI'] = processor.calculate_ndbi(image_type, area_code, time, coordinates)
+        results['NDBI'] = processor.calculate_ndbi(image_type, time, coordinates)
     
     if 'CDI' in calculate_types:
-        results['CDI'] = processor.calculate_cdi(image_type, area_code, time, coordinates)
+        results['CDI'] = processor.calculate_cdi(image_type, time, coordinates)
     
     return results
 
