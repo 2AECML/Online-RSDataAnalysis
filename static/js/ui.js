@@ -43,56 +43,82 @@ $(document).ready(function() {
         $('#RemoteLayerList-Landsat8').slideToggle();
     });
 
-    $('#RemoteLayerList-Landsat8').on('click', 'li', function () {
+    $('.nav-sublist').on('click', 'li', function (event) {
+        event.stopPropagation();
         if ($(this).hasClass('active')) {
             $(this).removeClass('active');
-            $("#RemoteLayerHeader-Landsat8").removeClass('list-item-active');
-            $("#ToggleButton").css('display', 'none');
+            $(this).parents('.nav-subheader').removeClass('list-item-active');
+            $(this).parents('.band-header').removeClass('list-item-active');
         }
         else {
             $(this).parent().children().removeClass('active');
             $(this).addClass('active'); 
-            $("#RemoteLayerHeader-Landsat8").addClass('list-item-active');
-            $("#ToggleButton").css('display', 'block');
+            $(this).parents('.nav-subheader').addClass('list-item-active');
+            $(this).parents('.band-header').addClass('list-item-active');
         }
     });
+
+    // $('#RemoteLayerList-Landsat8').on('click', 'li', function (event) {
+    //     event.stopPropagation();
+    //     if ($(this).hasClass('active')) {
+    //         $(this).removeClass('active');
+    //         $(this).parents('.nav-subheader').removeClass('list-item-active');
+    //         $(this).parents('.band-header').removeClass('list-item-active');
+    //         $("#ToggleButton").css('display', 'none');
+    //     }
+    //     else {
+    //         $(this).parent().children().removeClass('active');
+    //         $(this).addClass('active'); 
+    //         $(this).parents('.nav-subheader').addClass('list-item-active');
+    //         $(this).parents('.band-header').addClass('list-item-active');
+    //         $("#ToggleButton").css('display', 'block');
+    //     }
+    // });
 
     $('#RemoteLayerHeader-Sentinel-2').click(function () {
         $(this).toggleClass('active');
         $('#RemoteLayerList-Sentinel-2').slideToggle();
     });
 
-    $('#RemoteLayerList-Sentinel-2').on('click', 'li', function () {
-        if ($(this).hasClass('active')) {
-            $(this).removeClass('active');
-            $("#RemoteLayerHeader-Sentinel-2").removeClass('list-item-active');
-            $("#ToggleButton").css('display', 'none');
-        }
-        else {
-            $(this).parent().children().removeClass('active');
-            $(this).addClass('active');
-            $("#RemoteLayerHeader-Sentinel-2").addClass('list-item-active');
-            $("#ToggleButton").css('display', 'block');
-        }
-    });
+    // $('#RemoteLayerList-Sentinel-2').on('click', 'li', function (event) {
+    //     event.stopPropagation();
+    //     if ($(this).hasClass('active')) {
+    //         $(this).removeClass('active');
+    //         $("#RemoteLayerHeader-Sentinel-2").removeClass('list-item-active');
+    //         $("#ToggleButton").css('display', 'none');
+    //     }
+    //     else {
+    //         $(this).parent().children().removeClass('active');
+    //         $(this).addClass('active');
+    //         $("#RemoteLayerHeader-Sentinel-2").addClass('list-item-active');
+    //         $("#ToggleButton").css('display', 'block');
+    //     }
+    // });
 
     $('#RemoteLayerHeader-MODIS').click(function () {
         $(this).toggleClass('active');
         $('#RemoteLayerList-MODIS').slideToggle();
     });
 
-    $('#RemoteLayerList-MODIS li').on('click', 'li', function () {
-        if ($(this).hasClass('active')) {
-            $(this).removeClass('active');
-            $("#RemoteLayerHeader-MODIS").removeClass('list-item-active');
-            $("#ToggleButton").css('display', 'none');
-        }
-        else {
-            $(this).parent().children().removeClass('active');
-            $(this).addClass('active');
-            $("#RemoteLayerHeader-MODIS").addClass('list-item-active');
-            $("#ToggleButton").css('display', 'block');
-        }
+    // $('#RemoteLayerList-MODIS').on('click', 'li', function (event) {
+    //     event.stopPropagation();
+    //     if ($(this).hasClass('active')) {
+    //         $(this).removeClass('active');
+    //         $("#RemoteLayerHeader-MODIS").removeClass('list-item-active');
+    //         $("#ToggleButton").css('display', 'none');
+    //     }
+    //     else {
+    //         $(this).parent().children().removeClass('active');
+    //         $(this).addClass('active');
+    //         $("#RemoteLayerHeader-MODIS").addClass('list-item-active');
+    //         $("#ToggleButton").css('display', 'block');
+    //     }
+    // });
+
+    $('.nav-sublist').on('click', '.band-header', function (event) {
+        event.stopPropagation();
+        $(this).toggleClass('active');
+        $(this).find('li').slideToggle();
     });
 
     $('#FunctionHeader').click(function() {

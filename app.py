@@ -46,17 +46,14 @@ def calculate():
 def get_available_dates():
     data = request.json
     image_type = data.get('imageType')
-    area_code = data.get('areaCode')
 
     print('imageType:', image_type)
-    print('areaCode:', area_code)
 
-    dates = data_manager.get_available_dates(image_type, area_code)
+    dates = data_manager.get_available_dates(image_type)
 
     return jsonify({
         'status': 'success',
         'imageType': image_type,
-        'areaCode': area_code,
         'dates': dates
     })
 
@@ -64,16 +61,21 @@ def get_available_dates():
 img_types = ['Landsat8', 'Sentinel2', 'MODIS']
 @app.route('/get_available_images', methods=['POST'])
 def get_available_images():
-    area_codes_map = {}
-    for img_type in img_types:
-        area_codes = data_manager.get_available_area_codes(img_type)
-        area_codes_map[img_type] = area_codes
-        print(img_type, area_codes)
+    data = request.json
+    image_type = data.get('imageType')
+    date = data.get('date')
+    date = date['year'] + date['month']
+
+    print('imageType:', image_type)
+    print('date:', date)
+
+    images = data_manager.get_available_images(image_type, date)
 
     return jsonify({
         'status': 'success',
-        'imgTypes': img_types,
-        'areaCodes': area_codes_map
+        'imageType': image_type,
+        'date': date,
+        'images': images
     })
 
 

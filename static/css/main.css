@@ -8,6 +8,10 @@ html, body {
     height: 100%;
 }
 
+ul {
+    padding: 0;
+}
+
 .navbar {
     position: sticky;
     top: 0;
@@ -66,11 +70,11 @@ html, body {
 }
 
 .nav-list li {
-    padding: 5px 7px;
     border-bottom: 1px solid #ddd;
     transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
     display: flex;
+    padding-left: 3px;
     align-items: center;
     font-size: 0.85em;
 }
@@ -101,7 +105,6 @@ html, body {
 }
 
 .nav-subheader {
-    display: flex;
     font-weight: 700;
     background-color: #f0f2f5; /* 改为更浅的颜色 */
     padding: 8px;
@@ -143,6 +146,54 @@ html, body {
 .nav-subheader.list-item-active {
     border-color: #2196f3;
     background-color: #e3f2fd;
+}
+
+.band-header.list-item-active {
+    border-color: #2196f3;
+    background-color: #e7f1f8;
+}
+
+.band-header {
+    font-weight: 600;
+    background-color: #f5f7fa;
+    padding: 6px;
+    border-radius: 4px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    font-size: 0.80em;
+    border: 1px solid #dcdcdc;
+    align-items: center;
+    transition: background-color 0.3s, transform 0.3s; /* 添加过渡效果 */
+}
+
+.band-header:hover {
+    background-color: #d0d4db; /* 更深的背景颜色 */
+    transform: scale(1.02); /* 略微放大 */
+    border-color: #b0b0b0; /* 加深边框颜色 */
+}
+
+.band-header::before {
+    content: "▶"; /* 默认符号 */
+    margin-right: 5px;
+    color: #3c3c3c;
+    font-size: 10px; /* 调整符号大小 */
+    display: inline-block; /* 使 transform 生效 */
+    transition: transform 0.3s; /* 添加平滑过渡效果 */
+}
+
+.band-header.active::before {
+    content: "▶"; /* 保持符号不变 */
+    margin-right: 5px;
+    color: #3c3c3c;
+    font-size: 10px; /* 调整符号大小 */
+    display: inline-block; /* 使 transform 生效 */
+    transform: rotate(90deg); /* 顺时针旋转 90 度 */
+    transition: transform 0.3s; /* 添加平滑过渡效果 */
+}
+
+.band-list {
+    padding-top: 3px;
 }
 
 .nav-sublist {

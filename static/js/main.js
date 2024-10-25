@@ -22,13 +22,13 @@ const provincialLayer = new ol.layer.Tile({
     source: new ol.source.TileWMS({
         url: 'http://localhost:8080/geoserver/wms',
         params: {
-            'LAYERS': 'local:LAND_202311_RGB',
-            // 'STYLES': 'local:TrueColor',
+            'LAYERS': 'local:省级',
             'TILED': true
         },
         serverType: 'geoserver',
         transition: 0
     }),
+    opacity: 0.75,
     zIndex: 50
 });
 
@@ -89,7 +89,7 @@ $(document).ready(function () {
 
     map.setTarget("MapContainer");
 
-    getAvailableImages();
+    initAvailableDateAndImages();
 
     $('.nav-list').on('click', 'li', function () {
         var id = $(this).attr('id');
@@ -332,8 +332,7 @@ function initAvailableDates() {
         url: "/get_available_dates",
         contentType: "application/json",
         data: JSON.stringify({
-            imageType: curLayerName.split('-')[0],
-            areaCode: curLayerName.split('-')[1]
+            imageType: curLayerName.split('-')[0]
         }),
         dataType: "json",
         success: function (response) {
@@ -406,40 +405,77 @@ function onSelectionChange() {
         // 执行选择完成后的操作
         console.log(`Year: ${selectedYear}, Month: ${selectedMonth}`);
         calInfo.time = `${selectedYear}${selectedMonth}`;
-        remoteSource.updateParams({ 'LAYERS': 'local:' + curLayerName + '-' + calInfo.time });
+        remoteSource.updateParams({ 'LAYERS': 'local:' + curLayerName + '_' + calInfo.time + 'B3.TIF' });
     }
 }
 
-function getAvailableImages() {
-    // 通过 AJAX 发送数据到服务器
+function initAvailableDateAndImages() {
+    const imageTypes = ['Landsat', 'Sentinel', 'MODIS'];
+    imageTypes.forEach(type => {
+        $.ajax({
+            type: "POST",
+            url: "/get_available_dates",
+            contentType: "application/json",
+            data: JSON.stringify({
+                imageType: type
+            }),
+            dataType: "json",
+            success: function (response) {
+                const dateArray = response.dates;
+                dateArray.forEach(date => {
+                    console.log(date);
+                    const divItem = $('<div>', {
+                        id: `${type}-${date.year}-${date.month}`,
+                        class: 'band-header'
+                    }).append(
+                        `${date.year}-${date.month}`
+                    );
+                    if (type === 'Landsat') {
+                        $("#RemoteLayerList-Landsat8").append(divItem);
+                    } else if (type === 'Sentinel') {
+                        $("#RemoteLayerList-Sentinel-2").append(divItem);
+                    } else if (type === 'MODIS') {
+                        $("#RemoteLayerList-MODIS").append(divItem);
+                    }
+                    getAvailableImages(type, date);
+                });
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+}
+
+function getAvailableImages(imageType, date) {
     $.ajax({
         type: "POST",
         url: "/get_available_images",
         contentType: "application/json",
-        data: JSON.stringify({}),
+        data: JSON.stringify({
+            imageType: imageType,
+            date: date
+        }),
         dataType: "json",
         success: function (response) {
-            console.log('Server response:', response);
+            console.log(response);
+            const images = response.images;
+            if (images.length) {
+                const ulitem = $('<ul>', {
+                    id: `${imageType}-${date.year}-${date.month}-list`,
+                    class: 'band-list'
+                });
+                const targetItem = $(`#${imageType}-${date.year}-${date.month}`);
+                targetItem.append(ulitem);
 
-            for (const imageType in response.areaCodes) {
-                // console.log(response.areaCodes[imageType])
-
-                for (const areaCode of response.areaCodes[imageType]) {
-                    console.log(areaCode);
+                for (const image of images) {
+                    const listItemText = image;
                     const listItem = $('<li>', {
-                        id: `${imageType}-${areaCode}`
-                    }).append(
-                        `${imageType}-${areaCode}`
-                    );
-                    if (imageType === 'Landsat8') {
-                        $("#RemoteLayerList-Landsat8").append(listItem);
-                    }
-                    else if (imageType === 'Sentinel2') {
-                        $("#RemoteLayerList-Sentinel-2").append(listItem);
-                    }
-                    else if (imageType === 'MODIS') { 
-                        $("#RemoteLayerList-MODIS").append(listItem);
-                    }
+                        id: `${imageType}-${date.year}-${date.month}-list-item`,
+                        style: 'display: none'
+                    });
+                    listItem.append(listItemText);
+                    ulitem.append(listItem);
                 }
             }
         },
@@ -468,7 +504,7 @@ function showDialog() {
     $('#CoordinatesInfo').html(coordinates4326.map(coord => `(${coord[0].toFixed(4)}, ${coord[1].toFixed(4)})`).join('<br>'));
 
     // 确认按钮事件
-    $('#ConfirmButton').off('click').on('click', function() {
+    $('#ConfirmButton').off('click').on('click', function () {
         console.log('用户确认:', coordinates4326, calInfo.calculateTypes);
         closeDialog();
 
@@ -481,7 +517,7 @@ function showDialog() {
     });
 
     // 取消按钮事件
-    $('#CancelButton').off('click').on('click', function() {
+    $('#CancelButton').off('click').on('click', function () {
         console.log('用户取消');
         closeDialog();
     });

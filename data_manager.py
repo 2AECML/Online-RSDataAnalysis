@@ -3,21 +3,21 @@ import os
 # 定义全局变量 DATA_PATH
 DATA_PATH = 'D:/VSCode/Commission/20240902/data/'
 
-def get_available_dates(image_type, area_code):
+def get_available_dates(image_type):
     """
-    获取指定影像类型和区域代码中的可用年份与月份
+    获取指定影像类型中的可用年份与月份
     """
-    image_data = []
-    area_path = os.path.join(DATA_PATH, image_type, area_code)
+
+    path = os.path.join(DATA_PATH, image_type)
     
-    if not os.path.isdir(area_path):
-        raise ValueError(f'区域目录 "{area_path}" 不存在')
+    if not os.path.isdir(path):
+        raise ValueError(f'目录 "{path}" 不存在')
 
     dates = set()
     
     # 遍历区域目录中的每个子目录
-    for subdir in os.listdir(area_path):
-        subdir_path = os.path.join(area_path, subdir)
+    for subdir in os.listdir(path):
+        subdir_path = os.path.join(path, subdir)
         if os.path.isdir(subdir_path):
             # 提取年份和月份
             try:
@@ -28,29 +28,23 @@ def get_available_dates(image_type, area_code):
                 print(f'警告: 目录名称 "{subdir}" 格式不符合预期')
 
     # 将集合中的元组转换为字典列表
-    image_data = [{'year': year, 'month': month} for year, month in sorted(dates)]
+    image_dates = [{'year': year, 'month': month} for year, month in sorted(dates)]
 
-    return image_data
+    return image_dates
 
 
-def get_available_area_codes(image_type):
-    """
-    获取指定影像类型中的可用 area_code 范围
-    """
-    area_codes = set()
-    image_path = os.path.join(DATA_PATH, image_type)
+def get_available_images(image_type, date) :
+    path = os.path.join(DATA_PATH, image_type, date)
+
+    if not os.path.isdir(path):
+        raise ValueError(f'目录 "{path}" 不存在')
+
+    # 获取目录下的所有文件
+    images = os.listdir(path)
+
+    # 过滤只返回文件，不包括子目录
+    images = [f for f in images if os.path.isfile(os.path.join(path, f))]
     
-    if not os.path.isdir(image_path):
-        print(f'警告: 影像类型目录 "{image_path}" 不存在')
-        return []
+    return images
 
-    # 遍历影像类型目录中的每个子目录
-    for subdir in os.listdir(image_path):
-        subdir_path = os.path.join(image_path, subdir)
-        if os.path.isdir(subdir_path):
-            # 将 area_code 添加到集合中
-            area_codes.add(subdir)
-
-    # 返回一个包含 area_code 的排序列表
-    return sorted(area_codes)
-
+    
