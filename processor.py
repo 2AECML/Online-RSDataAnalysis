@@ -1,4 +1,5 @@
 # processor.py
+import data_manager
 import matplotlib
 import rasterio
 from rasterio.mask import mask
@@ -11,11 +12,13 @@ import tempfile
 
 matplotlib.use('Agg')
 
+DATA_PATH = 'data/'
+
 OUTPUT_PATH = 'output/'
 
 TEMP_PATH = 'temp/'
 
-DEFAULT_CRS = 'EPSG:4326'   
+DEFAULT_CRS = 'EPSG:4326'
 
 
 def calculate_ndvi(image_type, time, coordinates):
@@ -23,7 +26,7 @@ def calculate_ndvi(image_type, time, coordinates):
     bands = {'red': 4, 'nir': 5}
 
     # 获取波段文件
-    band_files = get_band_files(image_type, time, bands)
+    band_files = data_manager.get_band_files(image_type, time, bands)
 
     # 获取多边形
     polygon = create_polygon_from_points(coordinates)
@@ -58,7 +61,7 @@ def calculate_ndwi(image_type, time, coordinates):
     bands = {'green': 3, 'nir': 5}
 
     # 获取波段文件
-    band_files = get_band_files(image_type, time, bands)
+    band_files = data_manager.get_band_files(image_type, time, bands)
 
     # 获取多边形
     polygon = create_polygon_from_points(coordinates)
@@ -91,7 +94,7 @@ def calculate_ndbi(image_type, time, coordinates):
     bands = {'swir': 6, 'nir': 5}
 
     # 获取波段文件
-    band_files = get_band_files(image_type, time, bands)
+    band_files = data_manager.get_band_files(image_type, time, bands)
 
     # 获取多边形
     polygon = create_polygon_from_points(coordinates)
@@ -124,7 +127,7 @@ def calculate_cdi(image_type, time, coordinates):
     bands = {'blue': 2, 'green': 3}
 
     # 获取波段文件
-    band_files = get_band_files(image_type, time, bands)
+    band_files = data_manager.get_band_files(image_type, time, bands)
 
     # 获取多边形
     polygon = create_polygon_from_points(coordinates)
@@ -152,31 +155,10 @@ def calculate_cdi(image_type, time, coordinates):
     return geoserver_layer_name
 
 
-def get_band_files(image_type, time, bands):
-    """
-    返回指定波段文件路径
-    :param image_type: 图像类型，如 'LAND'
-    :param time: 时间标识
-    :param bands: 字典，指定指数计算所需的波段 {波段名称: 波段号}
-                  例如，NDVI 可传 {'red': 4, 'nir': 5}
-    :return: 对应波段文件路径字典
-    """
-    # 根据时间和图像类型构建文件夹路径
-    folder = os.path.join("D:/VSCode/Commission/20240902/data", time)
-
-    print(folder)
-    
-    # 根据传入的波段字典，构建波段文件路径
-    band_files = {}
-    for band_name, band_number in bands.items():
-        band_files[band_name] = os.path.join(folder, f"{image_type}_{time}_B{band_number}.TIF")
-
-    return band_files
-
-
 def create_polygon_from_points(points):
     # 将点列表转换为Shapely多边形
     polygon = Polygon(points)
+    # print(polygon)
     return polygon
 
 
@@ -188,20 +170,20 @@ def save_and_upload_result(image_src, transform, data):
     with tempfile.NamedTemporaryFile(suffix=".tif", delete=False) as temp_file:
         temp_filename = temp_file.name
 
-    # 计算 NDVI 数据的宽度和高度
-    if data.ndim == 3:
-        data_width = data.shape[2]
-        data_height = data.shape[1]
-    else:
-        data_width = data.shape[1]
-        data_height = data.shape[0]
+    # 确保 data 是正确的形状
+    if data.ndim == 4:
+        data = data[0, 0, :, :]  # 提取出 (1, 1) 的维度，变成 (height, width)
+    elif data.ndim == 3:
+        data = data[0, :, :]  # 提取出 (bands) 的维度，变成 (height, width)
+
+    # 计算数据的宽度和高度
+    data_height, data_width = data.shape
 
     print("data width:", data_width)
     print("data height:", data_height)
 
     # 保存 NDVI 数据为临时 TIF 文件
     with rasterio.open(image_src) as src:
-
         # 设置新的元数据
         metadata = {
             'driver': 'GTiff',
@@ -229,3 +211,6 @@ def save_and_upload_result(image_src, transform, data):
     os.remove(temp_filename)
 
     return geoserver_layername
+
+    
+

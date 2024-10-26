@@ -12,6 +12,10 @@ ul {
     padding: 0;
 }
 
+a {
+    text-decoration: none;
+}
+
 .navbar {
     position: sticky;
     top: 0;

@@ -264,7 +264,6 @@ var resultID = 0;
 var resultMap = new Map();
 function showResult(response) {
     const imageType = response.imageType;
-    const areaCode = response.areaCode;
     const time = response.time;
 
     for (const key in response.results) {
@@ -290,19 +289,26 @@ function showResult(response) {
         // 存储 resultID 和 resultLayer 的映射关系
         resultMap.set(currentID, resultLayer);
 
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0'); // 获取小时并补零
+        const minutes = String(now.getMinutes()).padStart(2, '0'); // 获取分钟并补零
+        const seconds = String(now.getSeconds()).padStart(2, '0'); // 获取秒并补零
+
+        const curTime = `${hours}:${minutes}:${seconds}`; // 结果格式为 HH-MM-SS
+
         const downloadUrl = `http://localhost:8080/geoserver/wcs?service=WCS&version=2.0.1&request=GetCoverage&coverageId=${geoserverLayerName}&format=image/tiff`
         const downloadButton = $('<a>', {
             href: downloadUrl,
             text: '🔽',
             class: 'download-button',
-            target: '_blank',
+            target: '_self',
             download: '' // 这会提示浏览器下载文件而不是直接打开
         });
 
         const listItem = $('<li>', {
             id: `ResultItem-${currentID}`
         }).append(
-            `${calculateType}-${imageType}-${areaCode}-${time} `
+            `${calculateType}-${imageType}-${time}-${curTime}`
         ).append(
             downloadButton
         );

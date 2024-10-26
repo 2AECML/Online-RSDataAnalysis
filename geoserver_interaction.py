@@ -71,3 +71,4 @@ def get_geotiff_metadata(file_path):
         metadata = src.meta
     return metadata
 
+upload_local_geotiffs()
