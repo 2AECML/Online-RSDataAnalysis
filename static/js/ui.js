@@ -1,4 +1,8 @@
-$(document).ready(function() {
+
+let curVectorLayerNum = 0;
+let curRasterLayerNum = 0;
+
+$(document).ready(function () {
     // 默认展开图层列表
     $('#LayerList').show();
 
@@ -6,119 +10,44 @@ $(document).ready(function() {
         $('#LayerList').slideToggle();
     });
 
-    $('#VectorLayerHeader').click(function () {
+    $('.nav-subheader').click(function (event) {
+        if ($(event.target).is('.nav-sublist li') || $(event.target).is('.band-header')) return;
         $(this).toggleClass('active');
-        $('#VectorLayerList').slideToggle();
+        $(this).find('.nav-sublist').slideToggle();
     });
 
-    $('#VectorLayerList li').click(function () {
-        if ($(this).hasClass('active')) { 
-            $(this).removeClass('active');
-            $("#VectorLayerHeader").removeClass('list-item-active');
-        }
-        else {
-            $(this).addClass('active');
-            $("#VectorLayerHeader").addClass('list-item-active');
-        }
-    });
-
-    $('#RasterLayerHeader').click(function () {
+    $('.nav-sublist').on('click', '.band-header', function (event) {
+        if ($(event.target).is('.band-list li')) return;
         $(this).toggleClass('active');
-        $('#RasterLayerList').slideToggle();
-    });
-
-    $('#RasterLayerList li').click(function () {
-        if ($(this).hasClass('active')) {
-            $(this).removeClass('active');
-            $("#RasterLayerHeader").removeClass('list-item-active');
-        }
-        else {
-            $(this).addClass('active');
-            $("#RasterLayerHeader").addClass('list-item-active');
-        }
-    });
-
-    $('#RemoteLayerHeader-Landsat8').click(function () {
-        $(this).toggleClass('active');
-        $('#RemoteLayerList-Landsat8').slideToggle();
+        $(this).find('li').slideToggle();
     });
 
     $('.nav-sublist').on('click', 'li', function (event) {
-        event.stopPropagation();
         if ($(this).hasClass('active')) {
             $(this).removeClass('active');
+            if ($(event.target).is('#VectorLayerHeader *') || $(event.target).is("#RasterLayerHeader *")) {
+                if ($(event.target).is('#VectorLayerHeader *') && --curVectorLayerNum > 0) {
+                    return;
+                }
+                else if ($(event.target).is('#RasterLayerHeader *') && --curRasterLayerNum > 0) {
+                    return;
+                }
+            }
             $(this).parents('.nav-subheader').removeClass('list-item-active');
             $(this).parents('.band-header').removeClass('list-item-active');
         }
         else {
-            $(this).parent().children().removeClass('active');
-            $(this).addClass('active'); 
+            if (!$(event.target).is('#VectorLayerHeader *') && !$(event.target).is("#RasterLayerHeader *")) {
+                $(this).parent().children().removeClass('active');
+            }
+            else {
+                if ($(event.target).is('#VectorLayerHeader *')) ++curVectorLayerNum;
+                else if ($(event.target).is('#RasterLayerHeader *')) ++curRasterLayerNum;
+            }
+            $(this).addClass('active');
             $(this).parents('.nav-subheader').addClass('list-item-active');
             $(this).parents('.band-header').addClass('list-item-active');
         }
-    });
-
-    // $('#RemoteLayerList-Landsat8').on('click', 'li', function (event) {
-    //     event.stopPropagation();
-    //     if ($(this).hasClass('active')) {
-    //         $(this).removeClass('active');
-    //         $(this).parents('.nav-subheader').removeClass('list-item-active');
-    //         $(this).parents('.band-header').removeClass('list-item-active');
-    //         $("#ToggleButton").css('display', 'none');
-    //     }
-    //     else {
-    //         $(this).parent().children().removeClass('active');
-    //         $(this).addClass('active'); 
-    //         $(this).parents('.nav-subheader').addClass('list-item-active');
-    //         $(this).parents('.band-header').addClass('list-item-active');
-    //         $("#ToggleButton").css('display', 'block');
-    //     }
-    // });
-
-    $('#RemoteLayerHeader-Sentinel-2').click(function () {
-        $(this).toggleClass('active');
-        $('#RemoteLayerList-Sentinel-2').slideToggle();
-    });
-
-    // $('#RemoteLayerList-Sentinel-2').on('click', 'li', function (event) {
-    //     event.stopPropagation();
-    //     if ($(this).hasClass('active')) {
-    //         $(this).removeClass('active');
-    //         $("#RemoteLayerHeader-Sentinel-2").removeClass('list-item-active');
-    //         $("#ToggleButton").css('display', 'none');
-    //     }
-    //     else {
-    //         $(this).parent().children().removeClass('active');
-    //         $(this).addClass('active');
-    //         $("#RemoteLayerHeader-Sentinel-2").addClass('list-item-active');
-    //         $("#ToggleButton").css('display', 'block');
-    //     }
-    // });
-
-    $('#RemoteLayerHeader-MODIS').click(function () {
-        $(this).toggleClass('active');
-        $('#RemoteLayerList-MODIS').slideToggle();
-    });
-
-    // $('#RemoteLayerList-MODIS').on('click', 'li', function (event) {
-    //     event.stopPropagation();
-    //     if ($(this).hasClass('active')) {
-    //         $(this).removeClass('active');
-    //         $("#RemoteLayerHeader-MODIS").removeClass('list-item-active');
-    //         $("#ToggleButton").css('display', 'none');
-    //     }
-    //     else {
-    //         $(this).parent().children().removeClass('active');
-    //         $(this).addClass('active');
-    //         $("#RemoteLayerHeader-MODIS").addClass('list-item-active');
-    //         $("#ToggleButton").css('display', 'block');
-    //     }
-    // });
-
-    $('.nav-sublist').on('click', '.band-header', function (event) {
-        event.stopPropagation();
-        $(this).toggleClass('active');
-        $(this).find('li').slideToggle();
     });
 
     $('#FunctionHeader').click(function() {
@@ -127,7 +56,7 @@ $(document).ready(function() {
 
     $('#FunctionList li').click(function () {
         $(this).toggleClass('active');
-        $('.draw-control-button').css('display', 'block');
+        $('.draw-control-button').show();
     });
 
     $('#ResultHeader').click(function() {

@@ -3,7 +3,6 @@
 var calInfo = calInfo || {};
 calInfo.calculateTypes = new Set([]);
 calInfo.imageType = '';
-calInfo.areaCode = '';
 calInfo.time = '';
 calInfo.coordinates = [];
 
@@ -28,7 +27,6 @@ const provincialLayer = new ol.layer.Tile({
         serverType: 'geoserver',
         transition: 0
     }),
-    opacity: 0.75,
     zIndex: 50
 });
 
@@ -72,7 +70,7 @@ const imageLayer = new ol.layer.Tile({
 var remoteSource = new ol.source.TileWMS({
     url: 'http://localhost:8080/geoserver/wms',
     params: {
-        'STYLES': 'TrueColor(Landsat)',
+        // 'STYLES': 'TrueColor(Landsat)',
         'TILED': true
     },
     serverType: 'geoserver',
@@ -90,9 +88,11 @@ $(document).ready(function () {
     map.setTarget("MapContainer");
 
     initAvailableDateAndImages();
-
+    
     $('.nav-list').on('click', 'li', function () {
         var id = $(this).attr('id');
+
+        console.log(id)
 
         if (/^ProvincialLayer|PrefecturalLayer|CountyLayer|ImageLayer$/.test(id)) {
             // 处理图层开关
@@ -104,21 +104,22 @@ $(document).ready(function () {
             };
             toggleLayer(layerMap[id]);
         }
-        else if (/^Landsat8*/.test(id)) {
+        else if (/^LAND*/.test(id)) {
             // 处理遥感图层
-            // resetRemoteLayer(id);
-
             map.removeLayer(remoteLayer);
             if (id === curLayerName) {
                 curLayerName = '';
                 remoteSource.updateParams({ 'LAYERS': '' });
+                calInfo.imageType = '';
+                calInfo.time = '';
             }
             else {
                 curLayerName = id;
-                initAvailableDates();
-                // remoteSource.updateParams({ 'LAYERS': 'local:' + curLayerName + '-' + calInfo.time });
+                remoteSource.updateParams({ 'LAYERS': 'local:' + curLayerName });
                 map.addLayer(remoteLayer);
-                console.log('切换遥感图层:', curLayerName + '-' + calInfo.time);
+                console.log('切换遥感图层:', curLayerName);
+                calInfo.imageType = 'Landsat';
+                calInfo.time = curLayerName.split('_')[1];
             }
         }
         else if (/^NDVI|NDWI|NDBI|CDI$/.test(id)) {
@@ -202,8 +203,7 @@ function startSelection() {
             return;
         }
 
-        calInfo.imageType = curLayerName.split('-')[0];
-        calInfo.areaCode = curLayerName.split('-')[1];
+        // calInfo.imageType = curLayerName.split('-')[0];
 
         showDialog();
     });
@@ -239,7 +239,6 @@ function sendInfo() {
         data: JSON.stringify({
             calculateTypes: Array.from(calInfo.calculateTypes),
             imageType: calInfo.imageType,
-            areaCode: calInfo.areaCode,
             time: calInfo.time,
             coordinates: coordinates4326
         }),
@@ -321,94 +320,6 @@ function getResultLayerByID(id) {
 }
 
 
-function initAvailableDates() {
-    // 清空现有选项
-    $('#YearSelect').empty();
-    $('#MonthSelect').empty();
-
-    // 通过 AJAX 发送数据到服务器
-    $.ajax({
-        type: "POST",
-        url: "/get_available_dates",
-        contentType: "application/json",
-        data: JSON.stringify({
-            imageType: curLayerName.split('-')[0]
-        }),
-        dataType: "json",
-        success: function (response) {
-            console.log('Server response:', response);
-            // 获取年份和月份数据
-            var dates = response.dates;
-
-            // 提取并填充年份下拉列表
-            var years = [...new Set(dates.map(date => date.year))].sort((a, b) => a - b);
-            years.forEach(year => {
-                $('#YearSelect').append($('<option>', {
-                    value: year,
-                    text: year
-                }));
-            });
-
-            // 根据所选年份更新月份下拉列表
-            function updateMonths(selectedYear) {
-                $('#MonthSelect').empty(); // 清空现有选项
-                // 从 dates 中筛选出对应年份的月份，并去重
-                var months = [...new Set(dates
-                    .filter(date => date.year === selectedYear)
-                    .map(date => date.month))];
-
-                // 按月份升序排序
-                months.sort((a, b) => a - b);
-
-                // 填充月份下拉列表
-                months.forEach(month => {
-                    $('#MonthSelect').append($('<option>', {
-                        value: month,
-                        text: month
-                    }));
-                });
-
-                // 默认选择最后一个月份（即最新的月份）
-                if (months.length > 0) {
-                    $('#MonthSelect').val(months[months.length - 1]);
-                }
-            }
-
-            // 初始化月份下拉列表
-            $('#YearSelect').change(function () {
-                var selectedYear = $(this).val();
-                updateMonths(selectedYear);
-                onSelectionChange();
-            });
-
-            $('#MonthSelect').change(function () {
-                onSelectionChange();
-            });
-
-            // 默认选择第一个年份并更新月份
-            if (years.length > 0) {
-                $('#YearSelect').val(years[0]).change();
-            }
-        },
-        error: function (error) {
-            console.error('Error:', error);
-        }
-    });
-}
-
-// 处理年份和月份选择完成后的操作
-function onSelectionChange() {
-    var selectedYear = $('#YearSelect').val();
-    var selectedMonth = $('#MonthSelect').val();
-
-    if (selectedYear && selectedMonth) {
-        // 执行选择完成后的操作
-        console.log(`Year: ${selectedYear}, Month: ${selectedMonth}`);
-        calInfo.time = `${selectedYear}${selectedMonth}`;
-        remoteSource.updateParams({ 'LAYERS': 'local:' + curLayerName + '_' + calInfo.time + 'B3.TIF' });
-    }
-}
-
 function initAvailableDateAndImages() {
     const imageTypes = ['Landsat', 'Sentinel', 'MODIS'];
     imageTypes.forEach(type => {
@@ -423,7 +334,7 @@ function initAvailableDateAndImages() {
             success: function (response) {
                 const dateArray = response.dates;
                 dateArray.forEach(date => {
-                    console.log(date);
+                    // console.log(date);
                     const divItem = $('<div>', {
                         id: `${type}-${date.year}-${date.month}`,
                         class: 'band-header'
@@ -458,7 +369,7 @@ function getAvailableImages(imageType, date) {
         }),
         dataType: "json",
         success: function (response) {
-            console.log(response);
+            // console.log(response);
             const images = response.images;
             if (images.length) {
                 const ulitem = $('<ul>', {
@@ -471,7 +382,7 @@ function getAvailableImages(imageType, date) {
                 for (const image of images) {
                     const listItemText = image;
                     const listItem = $('<li>', {
-                        id: `${imageType}-${date.year}-${date.month}-list-item`,
+                        id: `${listItemText}`,
                         style: 'display: none'
                     });
                     listItem.append(listItemText);
@@ -499,13 +410,16 @@ function showDialog() {
 
     // 填充信息
     $('#CalculateTypesInfo').text(Array.from(calInfo.calculateTypes).join(', '));
-    $("#ImageNameInfo").text(`${calInfo.imageType}-${calInfo.areaCode}`);
+    $("#ImageNameInfo").text(`${calInfo.imageType}`);
     $('#DateInfo').text(calInfo.time);
     $('#CoordinatesInfo').html(coordinates4326.map(coord => `(${coord[0].toFixed(4)}, ${coord[1].toFixed(4)})`).join('<br>'));
 
     // 确认按钮事件
     $('#ConfirmButton').off('click').on('click', function () {
         console.log('用户确认:', coordinates4326, calInfo.calculateTypes);
+
+        if (!checkCalInfo()) return;
+
         closeDialog();
 
         // 发送相关数据到服务器
@@ -521,6 +435,14 @@ function showDialog() {
         console.log('用户取消');
         closeDialog();
     });
+}
+
+
+function checkCalInfo() {
+    return calInfo.calculateTypes.size > 0
+        && calInfo.imageType != ''
+        && calInfo.time != ''
+        && calInfo.coordinates.length > 0
 }
 
 

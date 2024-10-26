@@ -22,16 +22,20 @@
             <div class="nav-section">
                 <div class="nav-header" id="LayerHeader">图层</div>
                 <ul class="nav-list" id="LayerList">
-                    <div class="nav-subheader" id="VectorLayerHeader">矢量图层</div>
-                    <ul class="nav-sublist" id="VectorLayerList">
-                        <li id="ProvincialLayer">省级行政区划</li>
-                        <li id="PrefecturalLayer">地级行政区划</li>
-                        <li id="CountyLayer">县级行政区划</li>
-                    </ul>
-                    <div class="nav-subheader" id="RasterLayerHeader">栅格图层</div>
-                    <ul class="nav-sublist" id="RasterLayerList">
-                        <li id="ImageLayer">影像图层</li>
-                    </ul>
+                    <div class="nav-subheader" id="VectorLayerHeader">
+                        <span>矢量图层</span>
+                        <ul class="nav-sublist" id="VectorLayerList">
+                            <li id="ProvincialLayer">省级行政区划</li>
+                            <li id="PrefecturalLayer">地级行政区划</li>
+                            <li id="CountyLayer">县级行政区划</li>
+                        </ul>
+                    </div>
+                    <div class="nav-subheader" id="RasterLayerHeader">
+                        <span>栅格图层</span>
+                        <ul class="nav-sublist" id="RasterLayerList">
+                            <li id="ImageLayer">影像图层</li>
+                        </ul>
+                    </div>
                     <div class="nav-subheader" id="RemoteLayerHeader-Landsat8">
                         <span>Landsat8遥感图层</span>
                         <ul class="nav-sublist" id="RemoteLayerList-Landsat8">
@@ -77,15 +81,6 @@
         </div>
         <button class="draw-control-button" id="SubmitButton">提交</button>
         <button class="draw-control-button" id="ResetButton">重置</button>
-        <div class="date-picker-wrapper">
-            <button id="ToggleButton" class="toggle-button">☰</button>
-            <div class="date-picker">
-                <label for="YearSelect">年份:</label>
-                <select id="YearSelect" class="date-select"></select>
-                <label for="MonthSelect">月份:</label>
-                <select id="MonthSelect" class="date-select"></select>
-            </div>
-        </div>
     </div>
 
     <div id="DialogOverlay" class="overlay"></div>

@@ -74,9 +74,8 @@ ul {
     transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
     display: flex;
-    padding-left: 3px;
+    padding: 3px;
     align-items: center;
-    font-size: 0.85em;
 }
 
 .nav-list li:hover {
@@ -198,8 +197,9 @@ ul {
 
 .nav-sublist {
     list-style-type: none;
-    padding: 0;
+    padding-top: 10px;
     margin: 0;
+    font-size: 14px;
     display: none; /* 默认隐藏子列表 */
 }
 
@@ -261,75 +261,6 @@ ul {
 #ResetButton {
     bottom: 20px;
     right: 100px;
-}
-
-.date-picker-wrapper {
-    position: absolute;
-    top: 45px;
-    right: 0;
-    display: flex;
-    align-items: flex-start;
-}
-
-.toggle-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-top-left-radius: 6px;
-    border-bottom-left-radius: 6px;
-    padding: 6px 12px;
-    font-size: 14px;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s, box-shadow 0.3s;
-    display: none;
-}
-
-.toggle-button:hover {
-    background-color: #0056b3;
-}
-
-.date-picker {
-    background-color: #ffffff;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-bottom-left-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 200px;
-    font-family: Arial, sans-serif;
-    display: none; /* 初始隐藏 */
-}
-
-.date-picker label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 12px;
-    color: #333;
-    font-weight: 600;
-}
-
-.date-select {
-    display: block;
-    width: 100%;
-    padding: 4px 8px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-bottom: 8px;
-    background-color: #f9f9f9;
-    color: #333;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.date-select:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
-    outline: none;
-}
-
-.date-select option {
-    background-color: #fff;
-    color: #333;
 }
 
 .overlay {

@@ -163,6 +163,8 @@ def get_band_files(image_type, time, bands):
     """
     # 根据时间和图像类型构建文件夹路径
     folder = os.path.join("D:/VSCode/Commission/20240902/data", time)
+
+    print(folder)
     
     # 根据传入的波段字典，构建波段文件路径
     band_files = {}
