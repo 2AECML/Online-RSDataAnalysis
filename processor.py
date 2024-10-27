@@ -23,7 +23,7 @@ DEFAULT_CRS = 'EPSG:4326'
 
 def calculate_ndwi(image_type, time, coordinates):
     
-    bands = {'green': 3, 'nir': 5}
+    bands = {'green', 'nir'}
 
     # 获取波段文件
     band_files = data_manager.get_band_files(image_type, time, bands)
@@ -56,7 +56,7 @@ def calculate_ndwi(image_type, time, coordinates):
 
 def calculate_nwi(image_type, time, coordinates):
     
-    bands = {'blue': 2, 'nir': 5, 'swir1': 6, 'swir2': 7}
+    bands = {'blue', 'nir', 'swir1', 'swir2'}
 
     # 获取波段文件
     band_files = data_manager.get_band_files(image_type, time, bands)
@@ -99,7 +99,7 @@ def calculate_nwi(image_type, time, coordinates):
 
 def calculate_awei_nsh(image_type, time, coordinates):
 
-    bands = {'green': 3, 'swir1': 6, 'nir': 5, 'swir2': 7}
+    bands = {'green', 'swir1', 'nir', 'swir2'}
 
     # 获取波段文件
     band_files = data_manager.get_band_files(image_type, time, bands)
@@ -142,7 +142,7 @@ def calculate_awei_nsh(image_type, time, coordinates):
 
 def calculate_awei_sh(image_type, time, coordinates):
     
-    bands = {'blue': 2, 'green': 3, 'nir': 5, 'swir1': 6, 'swir2': 7}
+    bands = {'blue', 'green', 'nir', 'swir1', 'swir2'}
 
     # 获取波段文件
     band_files = data_manager.get_band_files(image_type, time, bands)
@@ -190,7 +190,7 @@ def calculate_awei_sh(image_type, time, coordinates):
 
 def calculate_wi2015(image_type, time, coordinates):
     
-    bands = {'green': 3, 'red': 4, 'nir': 5, 'swir1': 6, 'swir2': 7}
+    bands = {'green', 'red', 'nir', 'swir1', 'swir2'}
 
     # 获取波段文件
     band_files = data_manager.get_band_files(image_type, time, bands)
@@ -238,7 +238,7 @@ def calculate_wi2015(image_type, time, coordinates):
 
 def calculate_mbwi(image_type, time, coordinates):
     
-    bands = {'red': 4, 'nir': 5, 'swir1': 6, 'tir': 10, 'swir2': 7}
+    bands = {'red', 'nir', 'swir1', 'tir1', 'swir2'}
 
     # 获取波段文件
     band_files = data_manager.get_band_files(image_type, time, bands)
@@ -259,9 +259,9 @@ def calculate_mbwi(image_type, time, coordinates):
         swir1_data, swir1_transform = mask(swir1_src, [polygon], crop=True)
         swir1_nodata = swir1_src.nodata
 
-    with rasterio.open(band_files['tir']) as tir_src:
-        tir_data, tir_transform = mask(tir_src, [polygon], crop=True)
-        tir_nodata = tir_src.nodata
+    with rasterio.open(band_files['tir1']) as tir1_src:
+        tir1_data, tir1_transform = mask(tir1_src, [polygon], crop=True)
+        tir1_nodata = tir1_src.nodata
 
     with rasterio.open(band_files['swir2']) as swir2_src:
         swir2_data, swir2_transform = mask(swir2_src, [polygon], crop=True)
@@ -271,11 +271,11 @@ def calculate_mbwi(image_type, time, coordinates):
     red_data = np.where(red_data == red_nodata, np.nan, red_data)
     nir_data = np.where(nir_data == nir_nodata, np.nan, nir_data)
     swir1_data = np.where(swir1_data == swir1_nodata, np.nan, swir1_data)
-    tir_data = np.where(tir_data == tir_nodata, np.nan, tir_data)
+    tir1_data = np.where(tir1_data == tir1_nodata, np.nan, tir1_data)
     swir2_data = np.where(swir2_data == swir2_nodata, np.nan, swir2_data)
 
     # 计算 MBWI 指数
-    mbwi = 2 * red_data - nir_data - swir1_data - tir_data - swir2_data
+    mbwi = 2 * red_data - nir_data - swir1_data - tir1_data - swir2_data
 
     print("MBWI completed")
 
@@ -286,7 +286,7 @@ def calculate_mbwi(image_type, time, coordinates):
 
 def calculate_ndmbwi(image_type, time, coordinates):
     
-    bands = {'green': 3, 'blue': 2, 'red': 4, 'nir': 5}
+    bands = {'green', 'blue', 'red', 'nir'}
 
     # 获取波段文件
     band_files = data_manager.get_band_files(image_type, time, bands)
@@ -333,7 +333,7 @@ def calculate_ndmbwi(image_type, time, coordinates):
 
 def calculate_grnwi(image_type, time, coordinates):
     
-    bands = {'green': 3, 'red': 4, 'nir': 5}
+    bands = {'green', 'red', 'nir'}
 
     # 获取波段文件
     band_files = data_manager.get_band_files(image_type, time, bands)

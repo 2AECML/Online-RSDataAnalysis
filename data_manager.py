@@ -4,6 +4,40 @@ from pyproj import Proj, transform
 # 定义全局变量 DATA_PATH
 DATA_PATH = 'D:/VSCode/Commission/20240902/data/'
 
+BAND_MAP = {
+    'Landsat': {
+        'coastal': '1',
+        'blue': '2',
+        'green': '3',
+        'red': '4',
+        'nir': '5',
+        'swir1': '6',
+        'swir2': '7',
+        'pan': '8',
+        'cirrus': '9',
+        'tir1': '10',
+        'tir2': '11'
+    },
+    'Sentinel': {
+        'coastal': '1',
+        'blue': '2',
+        'green': '3',
+        'red': '4',
+        're1': '5',
+        're2': '6',
+        're3': '7',
+        'nir': '8',
+        'nnir': '8A',
+        'wv': '9',
+        'cirrus': '10',
+        'swir1': '11',
+        'swir2': '12',
+    },
+    'MODIS': {
+
+    }
+}
+
 def get_available_dates(image_type):
     """
     获取指定影像类型中的可用年份与月份
@@ -55,7 +89,7 @@ def get_band_files(image_type, time, bands):
     :param image_type: 图像类型，如 'Landsat'
     :param time: 时间标识
     :param bands: 字典，指定指数计算所需的波段 {波段名称: 波段号}
-                  例如，NDVI 可传 {'red': 4, 'nir': 5}
+                  例如，NDWI 可传 {'red', 'nir'}
     :return: 对应波段文件路径字典
     """
     # 根据时间和图像类型构建文件夹路径
@@ -65,11 +99,21 @@ def get_band_files(image_type, time, bands):
     print(folder)
 
     abbreviation = getAbbreviation(image_type)
+
+    # 获取当前图像类型的波段号
+    if image_type not in BAND_MAP:
+        raise ValueError(f"Unsupported image type: {image_type}")
     
-    # 根据传入的波段字典，构建波段文件路径
+    bands_with_numbers = BAND_MAP[image_type]
+
+    # 根据传入的波段名称集合，构建波段文件路径
     band_files = {}
-    for band_name, band_number in bands.items():
-        band_files[band_name] = os.path.join(folder, f"{abbreviation}_{time}_B{band_number}.TIF")
+    for band_name in bands:
+        if band_name in bands_with_numbers:
+            band_number = bands_with_numbers[band_name]
+            band_files[band_name] = os.path.join(folder, f"{abbreviation}_{time}_B{band_number}.TIF")
+        else:
+            raise ValueError(f"Unsupported band: {band_name} for image type: {image_type}")
 
     return band_files
 

@@ -9,8 +9,10 @@ PASSWORD = 'geoserver'
 USER_WORKSPACE = 'user_cal_res'
 LOCAL_WORKSPACE = 'local'
 LOCAL_DATA_PATH = 'data'
+GEOSERVER_DATA_PATH = 'D:/GeoServer/data_dir/data'
 
 geo = Geoserver(SERVICE_URL, username=USER_NAME, password=PASSWORD)
+
 
 def upload_local_geotiffs(): 
     create_workspace_if_not_exists(LOCAL_WORKSPACE)
