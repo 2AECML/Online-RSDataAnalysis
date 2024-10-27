@@ -1,5 +1,4 @@
 import os
-import rasterio
 from pyproj import Proj, transform
 
 # 定义全局变量 DATA_PATH

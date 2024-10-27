@@ -21,41 +21,6 @@ TEMP_PATH = 'temp/'
 DEFAULT_CRS = 'EPSG:4326'
 
 
-def calculate_ndvi(image_type, time, coordinates):
-    
-    bands = {'red': 4, 'nir': 5}
-
-    # 获取波段文件
-    band_files = data_manager.get_band_files(image_type, time, bands)
-
-    # 获取多边形
-    polygon = create_polygon_from_points(coordinates)
-
-    # 使用rasterio打开红色波段和近红外波段
-    with rasterio.open(band_files['red']) as red_src:
-        # 使用掩模提取红色波段的多边形区域数据
-        red_data, red_transform = mask(red_src, [polygon], crop=True)
-        red_nodata = red_src.nodata
-
-    with rasterio.open(band_files['nir']) as nir_src:
-        # 使用掩模提取近红外波段的多边形区域数据
-        nir_data, nir_transform = mask(nir_src, [polygon], crop=True)
-        nir_nodata = nir_src.nodata
-    
-    # 移除 NoData 值
-    red_data = np.where(red_data == red_nodata, np.nan, red_data)
-    nir_data = np.where(nir_data == nir_nodata, np.nan, nir_data)
-
-    # 计算 NDVI 指数
-    ndvi = (nir_data - red_data) / (nir_data + red_data)
-
-    print("ndvi completed")
-
-    geoserver_layer_name = save_and_upload_result(band_files['red'], red_transform, ndvi)
-    
-    return geoserver_layer_name
-
-
 def calculate_ndwi(image_type, time, coordinates):
     
     bands = {'green': 3, 'nir': 5}
@@ -89,9 +54,9 @@ def calculate_ndwi(image_type, time, coordinates):
     return geoserver_layer_name
 
 
-def calculate_ndbi(image_type, time, coordinates):
+def calculate_nwi(image_type, time, coordinates):
     
-    bands = {'swir': 6, 'nir': 5}
+    bands = {'blue': 2, 'nir': 5, 'swir1': 6, 'swir2': 7}
 
     # 获取波段文件
     band_files = data_manager.get_band_files(image_type, time, bands)
@@ -99,32 +64,42 @@ def calculate_ndbi(image_type, time, coordinates):
     # 获取多边形
     polygon = create_polygon_from_points(coordinates)
 
-    # 使用rasterio打开SWIR波段和近红外波段
-    with rasterio.open(band_files['swir']) as swir_src:
-        swir_data, swir_transform = mask(swir_src, [polygon], crop=True)
-        swir_nodata = swir_src.nodata
+    # 使用rasterio打开相关波段
+    with rasterio.open(band_files['blue']) as blue_src:
+        blue_data, blue_transform = mask(blue_src, [polygon], crop=True)
+        blue_nodata = blue_src.nodata
 
     with rasterio.open(band_files['nir']) as nir_src:
         nir_data, nir_transform = mask(nir_src, [polygon], crop=True)
         nir_nodata = nir_src.nodata
+
+    with rasterio.open(band_files['swir1']) as swir1_src:
+        swir1_data, swir1_transform = mask(swir1_src, [polygon], crop=True)
+        swir1_nodata = swir1_src.nodata
+
+    with rasterio.open(band_files['swir2']) as swir2_src:
+        swir2_data, swir2_transform = mask(swir2_src, [polygon], crop=True)
+        swir2_nodata = swir2_src.nodata
     
     # 移除 NoData 值
-    swir_data = np.where(swir_data == swir_nodata, np.nan, swir_data)
+    blue_data = np.where(blue_data == blue_nodata, np.nan, blue_data)
     nir_data = np.where(nir_data == nir_nodata, np.nan, nir_data)
+    swir1_data = np.where(swir1_data == swir1_nodata, np.nan, swir1_data)
+    swir2_data = np.where(swir2_data == swir2_nodata, np.nan, swir2_data)
 
-    # 计算 NDBI 指数
-    ndbi = (swir_data - nir_data) / (swir_data + nir_data)
+    # 计算 NWI 指数
+    nwi = (blue_data - (nir_data + swir1_data + swir2_data)) / (blue_data + (nir_data + swir1_data + swir2_data))
 
-    print("ndbi completed")
+    print("nwi completed")
 
-    geoserver_layer_name = save_and_upload_result(band_files['swir'], swir_transform, ndbi)
-    
+    geoserver_layer_name = save_and_upload_result(band_files['blue'], blue_transform, nwi)
+
     return geoserver_layer_name
 
 
-def calculate_cdi(image_type, time, coordinates):
-    
-    bands = {'blue': 2, 'green': 3}
+def calculate_awei_nsh(image_type, time, coordinates):
+
+    bands = {'green': 3, 'swir1': 6, 'nir': 5, 'swir2': 7}
 
     # 获取波段文件
     band_files = data_manager.get_band_files(image_type, time, bands)
@@ -132,7 +107,50 @@ def calculate_cdi(image_type, time, coordinates):
     # 获取多边形
     polygon = create_polygon_from_points(coordinates)
 
-    # 使用rasterio打开蓝色波段和绿色波段
+    # 使用rasterio打开相关波段
+    with rasterio.open(band_files['green']) as green_src:
+        green_data, green_transform = mask(green_src, [polygon], crop=True)
+        green_nodata = green_src.nodata
+
+    with rasterio.open(band_files['swir1']) as swir1_src:
+        swir1_data, swir1_transform = mask(swir1_src, [polygon], crop=True)
+        swir1_nodata = swir1_src.nodata
+
+    with rasterio.open(band_files['nir']) as nir_src:
+        nir_data, nir_transform = mask(nir_src, [polygon], crop=True)
+        nir_nodata = nir_src.nodata
+
+    with rasterio.open(band_files['swir2']) as swir2_src:
+        swir2_data, swir2_transform = mask(swir2_src, [polygon], crop=True)
+        swir2_nodata = swir2_src.nodata
+
+    # 移除 NoData 值
+    green_data = np.where(green_data == green_nodata, np.nan, green_data)
+    swir1_data = np.where(swir1_data == swir1_nodata, np.nan, swir1_data)
+    nir_data = np.where(nir_data == nir_nodata, np.nan, nir_data)
+    swir2_data = np.where(swir2_data == swir2_nodata, np.nan, swir2_data)
+
+    # 计算 AWEInsh 指数
+    awei_nsh = 4 * (green_data - swir1_data) - (0.25 * nir_data + 2.75 * swir2_data)
+
+    print("AWEInsh completed")
+
+    geoserver_layer_name = save_and_upload_result(band_files['green'], green_transform, awei_nsh)
+
+    return geoserver_layer_name
+
+
+def calculate_awei_sh(image_type, time, coordinates):
+    
+    bands = {'blue': 2, 'green': 3, 'nir': 5, 'swir1': 6, 'swir2': 7}
+
+    # 获取波段文件
+    band_files = data_manager.get_band_files(image_type, time, bands)
+
+    # 获取多边形
+    polygon = create_polygon_from_points(coordinates)
+
+    # 使用rasterio打开相关波段
     with rasterio.open(band_files['blue']) as blue_src:
         blue_data, blue_transform = mask(blue_src, [polygon], crop=True)
         blue_nodata = blue_src.nodata
@@ -140,18 +158,214 @@ def calculate_cdi(image_type, time, coordinates):
     with rasterio.open(band_files['green']) as green_src:
         green_data, green_transform = mask(green_src, [polygon], crop=True)
         green_nodata = green_src.nodata
-    
+
+    with rasterio.open(band_files['nir']) as nir_src:
+        nir_data, nir_transform = mask(nir_src, [polygon], crop=True)
+        nir_nodata = nir_src.nodata
+
+    with rasterio.open(band_files['swir1']) as swir1_src:
+        swir1_data, swir1_transform = mask(swir1_src, [polygon], crop=True)
+        swir1_nodata = swir1_src.nodata
+
+    with rasterio.open(band_files['swir2']) as swir2_src:
+        swir2_data, swir2_transform = mask(swir2_src, [polygon], crop=True)
+        swir2_nodata = swir2_src.nodata
+
     # 移除 NoData 值
     blue_data = np.where(blue_data == blue_nodata, np.nan, blue_data)
     green_data = np.where(green_data == green_nodata, np.nan, green_data)
+    nir_data = np.where(nir_data == nir_nodata, np.nan, nir_data)
+    swir1_data = np.where(swir1_data == swir1_nodata, np.nan, swir1_data)
+    swir2_data = np.where(swir2_data == swir2_nodata, np.nan, swir2_data)
 
-    # 计算 CDI 指数
-    cdi = (blue_data - green_data) / (blue_data + green_data)
+    # 计算 AWEIsh 指数
+    awei_sh = blue_data + 2.5 * green_data - 1.5 * (nir_data + swir1_data) - 0.25 * swir2_data
 
-    print("cdi completed")
+    print("AWEIsh completed")
 
-    geoserver_layer_name = save_and_upload_result(band_files['blue'], blue_transform, cdi)
+    geoserver_layer_name = save_and_upload_result(band_files['blue'], blue_transform, awei_sh)
+
+    return geoserver_layer_name
+
+
+def calculate_wi2015(image_type, time, coordinates):
     
+    bands = {'green': 3, 'red': 4, 'nir': 5, 'swir1': 6, 'swir2': 7}
+
+    # 获取波段文件
+    band_files = data_manager.get_band_files(image_type, time, bands)
+
+    # 获取多边形
+    polygon = create_polygon_from_points(coordinates)
+
+    # 使用rasterio打开相关波段
+    with rasterio.open(band_files['green']) as green_src:
+        green_data, green_transform = mask(green_src, [polygon], crop=True)
+        green_nodata = green_src.nodata
+
+    with rasterio.open(band_files['red']) as red_src:
+        red_data, red_transform = mask(red_src, [polygon], crop=True)
+        red_nodata = red_src.nodata
+
+    with rasterio.open(band_files['nir']) as nir_src:
+        nir_data, nir_transform = mask(nir_src, [polygon], crop=True)
+        nir_nodata = nir_src.nodata
+
+    with rasterio.open(band_files['swir1']) as swir1_src:
+        swir1_data, swir1_transform = mask(swir1_src, [polygon], crop=True)
+        swir1_nodata = swir1_src.nodata
+
+    with rasterio.open(band_files['swir2']) as swir2_src:
+        swir2_data, swir2_transform = mask(swir2_src, [polygon], crop=True)
+        swir2_nodata = swir2_src.nodata
+
+    # 移除 NoData 值
+    green_data = np.where(green_data == green_nodata, np.nan, green_data)
+    red_data = np.where(red_data == red_nodata, np.nan, red_data)
+    nir_data = np.where(nir_data == nir_nodata, np.nan, nir_data)
+    swir1_data = np.where(swir1_data == swir1_nodata, np.nan, swir1_data)
+    swir2_data = np.where(swir2_data == swir2_nodata, np.nan, swir2_data)
+
+    # 计算 WI2015 指数
+    wi2015 = 1.7204 + 171 * green_data + 3 * red_data - 70 * nir_data - 45 * swir1_data - 71 * swir2_data
+
+    print("WI2015 completed")
+
+    geoserver_layer_name = save_and_upload_result(band_files['green'], green_transform, wi2015)
+
+    return geoserver_layer_name
+
+
+def calculate_mbwi(image_type, time, coordinates):
+    
+    bands = {'red': 4, 'nir': 5, 'swir1': 6, 'tir': 10, 'swir2': 7}
+
+    # 获取波段文件
+    band_files = data_manager.get_band_files(image_type, time, bands)
+
+    # 获取多边形
+    polygon = create_polygon_from_points(coordinates)
+
+    # 使用rasterio打开相关波段
+    with rasterio.open(band_files['red']) as red_src:
+        red_data, red_transform = mask(red_src, [polygon], crop=True)
+        red_nodata = red_src.nodata
+
+    with rasterio.open(band_files['nir']) as nir_src:
+        nir_data, nir_transform = mask(nir_src, [polygon], crop=True)
+        nir_nodata = nir_src.nodata
+
+    with rasterio.open(band_files['swir1']) as swir1_src:
+        swir1_data, swir1_transform = mask(swir1_src, [polygon], crop=True)
+        swir1_nodata = swir1_src.nodata
+
+    with rasterio.open(band_files['tir']) as tir_src:
+        tir_data, tir_transform = mask(tir_src, [polygon], crop=True)
+        tir_nodata = tir_src.nodata
+
+    with rasterio.open(band_files['swir2']) as swir2_src:
+        swir2_data, swir2_transform = mask(swir2_src, [polygon], crop=True)
+        swir2_nodata = swir2_src.nodata
+
+    # 移除 NoData 值
+    red_data = np.where(red_data == red_nodata, np.nan, red_data)
+    nir_data = np.where(nir_data == nir_nodata, np.nan, nir_data)
+    swir1_data = np.where(swir1_data == swir1_nodata, np.nan, swir1_data)
+    tir_data = np.where(tir_data == tir_nodata, np.nan, tir_data)
+    swir2_data = np.where(swir2_data == swir2_nodata, np.nan, swir2_data)
+
+    # 计算 MBWI 指数
+    mbwi = 2 * red_data - nir_data - swir1_data - tir_data - swir2_data
+
+    print("MBWI completed")
+
+    geoserver_layer_name = save_and_upload_result(band_files['red'], red_transform, mbwi)
+
+    return geoserver_layer_name
+
+
+def calculate_ndmbwi(image_type, time, coordinates):
+    
+    bands = {'green': 3, 'blue': 2, 'red': 4, 'nir': 5}
+
+    # 获取波段文件
+    band_files = data_manager.get_band_files(image_type, time, bands)
+
+    # 获取多边形
+    polygon = create_polygon_from_points(coordinates)
+
+    # 使用rasterio打开相关波段
+    with rasterio.open(band_files['green']) as green_src:
+        green_data, green_transform = mask(green_src, [polygon], crop=True)
+        green_nodata = green_src.nodata
+
+    with rasterio.open(band_files['blue']) as blue_src:
+        blue_data, blue_transform = mask(blue_src, [polygon], crop=True)
+        blue_nodata = blue_src.nodata
+
+    with rasterio.open(band_files['red']) as red_src:
+        red_data, red_transform = mask(red_src, [polygon], crop=True)
+        red_nodata = red_src.nodata
+
+    with rasterio.open(band_files['nir']) as nir_src:
+        nir_data, nir_transform = mask(nir_src, [polygon], crop=True)
+        nir_nodata = nir_src.nodata
+
+    # 移除 NoData 值
+    green_data = np.where(green_data == green_nodata, np.nan, green_data)
+    blue_data = np.where(blue_data == blue_nodata, np.nan, blue_data)
+    red_data = np.where(red_data == red_nodata, np.nan, red_data)
+    nir_data = np.where(nir_data == nir_nodata, np.nan, nir_data)
+
+    # 计算 NDMBWI 指数
+    numerator = (3 * green_data - blue_data + 2 * red_data - 5 * nir_data)
+    denominator = (3 * green_data + blue_data + 2 * red_data + 5 * nir_data)
+
+    # 避免除以零
+    ndmbwi = np.divide(numerator, denominator, out=np.zeros_like(numerator), where=denominator != 0)
+
+    print("NDMBWI completed")
+
+    geoserver_layer_name = save_and_upload_result(band_files['green'], green_transform, ndmbwi)
+
+    return geoserver_layer_name
+
+
+def calculate_grnwi(image_type, time, coordinates):
+    
+    bands = {'green': 3, 'red': 4, 'nir': 5}
+
+    # 获取波段文件
+    band_files = data_manager.get_band_files(image_type, time, bands)
+
+    # 获取多边形
+    polygon = create_polygon_from_points(coordinates)
+
+    # 使用rasterio打开相关波段
+    with rasterio.open(band_files['green']) as green_src:
+        green_data, green_transform = mask(green_src, [polygon], crop=True)
+        green_nodata = green_src.nodata
+
+    with rasterio.open(band_files['red']) as red_src:
+        red_data, red_transform = mask(red_src, [polygon], crop=True)
+        red_nodata = red_src.nodata
+
+    with rasterio.open(band_files['nir']) as nir_src:
+        nir_data, nir_transform = mask(nir_src, [polygon], crop=True)
+        nir_nodata = nir_src.nodata
+
+    # 移除 NoData 值
+    green_data = np.where(green_data == green_nodata, np.nan, green_data)
+    red_data = np.where(red_data == red_nodata, np.nan, red_data)
+    nir_data = np.where(nir_data == nir_nodata, np.nan, nir_data)
+
+    # 计算 GRNWI 指数
+    grnwi = green_data + red_data - 2 * nir_data
+
+    print("GRNWI completed")
+
+    geoserver_layer_name = save_and_upload_result(band_files['green'], green_transform, grnwi)
+
     return geoserver_layer_name
 
 

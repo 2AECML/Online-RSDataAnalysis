@@ -70,7 +70,6 @@ const imageLayer = new ol.layer.Tile({
 var remoteSource = new ol.source.TileWMS({
     url: 'http://localhost:8080/geoserver/wms',
     params: {
-        // 'STYLES': 'TrueColor(Landsat)',
         'TILED': true
     },
     serverType: 'geoserver',
@@ -122,7 +121,7 @@ $(document).ready(function () {
                 calInfo.time = curLayerName.split('_')[1];
             }
         }
-        else if (/^NDVI|NDWI|NDBI|CDI$/.test(id)) {
+        else if (/^NDWI|NWI|AWEInsh|AWEIsh|WI2015|MBWI|NDMBWI|GRN-WI$/.test(id)) {
             // 处理选择功能
             if (calInfo.calculateTypes.has(id)) {
                 calInfo.calculateTypes.delete(id);
@@ -296,13 +295,14 @@ function showResult(response) {
 
         const curTime = `${hours}:${minutes}:${seconds}`; // 结果格式为 HH-MM-SS
 
-        const downloadUrl = `http://localhost:8080/geoserver/wcs?service=WCS&version=2.0.1&request=GetCoverage&coverageId=${geoserverLayerName}&format=image/tiff`
+        const fileName = `${calculateType}-${imageType}-${time}-${curTime}.tif`
+
+        const downloadUrl = `http://localhost:8080/geoserver/wcs?service=WCS&version=2.0.1&request=GetCoverage&coverageId=${geoserverLayerName}&format=image/tiff&filename=${fileName}`
         const downloadButton = $('<a>', {
             href: downloadUrl,
             text: '🔽',
             class: 'download-button',
             target: '_self',
-            download: '' // 这会提示浏览器下载文件而不是直接打开
         });
 
         const listItem = $('<li>', {

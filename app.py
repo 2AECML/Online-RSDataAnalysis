@@ -82,17 +82,29 @@ def get_available_images():
 def process_calculations(image_type, time, coordinates, calculate_types):
     results = {}
     
-    if 'NDVI' in calculate_types:
-        results['NDVI'] = processor.calculate_ndvi(image_type, time, coordinates)
-    
     if 'NDWI' in calculate_types:
         results['NDWI'] = processor.calculate_ndwi(image_type, time, coordinates)
-    
-    if 'NDBI' in calculate_types:
-        results['NDBI'] = processor.calculate_ndbi(image_type, time, coordinates)
-    
-    if 'CDI' in calculate_types:
-        results['CDI'] = processor.calculate_cdi(image_type, time, coordinates)
+
+    if 'NWI' in calculate_types:
+        results['NWI'] = processor.calculate_nwi(image_type, time, coordinates)
+
+    if 'AWEInsh' in calculate_types:
+        results['AWEInsh'] = processor.calculate_awei_nsh(image_type, time, coordinates)
+
+    if 'AWEIsh' in calculate_types:
+        results['AWEIsh'] = processor.calculate_awei_sh(image_type, time, coordinates)
+
+    if 'WI2015' in calculate_types:
+        results['WI2015'] = processor.calculate_wi2015(image_type, time, coordinates)
+
+    if 'MBWI' in calculate_types:
+        results['MBWI'] = processor.calculate_mbwi(image_type, time, coordinates)
+
+    if 'NDMBWI' in calculate_types:
+        results['NDMBWI'] = processor.calculate_ndmbwi(image_type, time, coordinates)
+
+    if 'GRN-WI' in calculate_types:
+        results['GRN-WI'] = processor.calculate_grnwi(image_type, time, coordinates)
     
     return results
 
