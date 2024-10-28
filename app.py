@@ -3,7 +3,9 @@ from flask_cors import CORS
 import processor
 import data_manager
 
+
 app = Flask(__name__)
+
 
 # 配置 CORS
 CORS(app, resources={r"/*": {"origins": "*"}})  # 允许所有来源
@@ -79,7 +81,19 @@ def get_available_images():
     })
 
 
-def process_calculations(image_type, time, coordinates, calculate_types):
+def process_calculations(image_type: str, time: str, coordinates: list, calculate_types: list) -> dict:
+    """
+    处理计算并返回结果
+
+    参数:
+        image_type: 图像类型，如 'Landsat'
+        time: 时间标识，如202410
+        coordinates: 坐标列表，格式为 [[longitude, latitude], ...]
+        calculate_types: 要计算的指数类型列表，如 ['NDWI', 'NWI']
+
+    返回:
+        dict: 包含计算结果的字典，格式为 {'指数名称': 结果}
+    """
     results = {}
     
     if 'NDWI' in calculate_types:
@@ -111,3 +125,4 @@ def process_calculations(image_type, time, coordinates, calculate_types):
 
 if __name__ == '__main__':
     app.run(debug=True)
+

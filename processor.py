@@ -1,4 +1,5 @@
 # processor.py
+import rasterio.transform
 import data_manager
 import matplotlib
 import rasterio
@@ -21,7 +22,18 @@ TEMP_PATH = 'temp/'
 DEFAULT_CRS = 'EPSG:4326'
 
 
-def calculate_ndwi(image_type, time, coordinates):
+def calculate_ndwi(image_type: str, time: str, coordinates: list) -> str:
+    """
+    计算NDWI
+
+    参数:
+        image_type: 图像类型，如 'Landsat'
+        time: 时间标识，如202410
+        coordinates: 坐标列表，格式为 [[longitude, latitude], ...]
+
+    返回:
+        上传的图层在用户工作区中的完整标识，格式为 'workspace:layer_name'
+    """
     
     bands = {'green', 'nir'}
 
@@ -47,14 +59,25 @@ def calculate_ndwi(image_type, time, coordinates):
     # 计算 NDWI 指数
     ndwi = (green_data - nir_data) / (green_data + nir_data)
 
-    print("ndwi completed")
+    print("NDWI completed")
 
     geoserver_layer_name = save_and_upload_result(band_files['green'], green_transform, ndwi)
     
     return geoserver_layer_name
 
 
-def calculate_nwi(image_type, time, coordinates):
+def calculate_nwi(image_type: str, time: str, coordinates: list) -> str:
+    """
+    计算NWI
+
+    参数:
+        image_type: 图像类型，如 'Landsat'
+        time: 时间标识，如202410
+        coordinates: 坐标列表，格式为 [[longitude, latitude], ...]
+
+    返回:
+        上传的图层在用户工作区中的完整标识，格式为 'workspace:layer_name'
+    """
     
     bands = {'blue', 'nir', 'swir1', 'swir2'}
 
@@ -90,14 +113,25 @@ def calculate_nwi(image_type, time, coordinates):
     # 计算 NWI 指数
     nwi = (blue_data - (nir_data + swir1_data + swir2_data)) / (blue_data + (nir_data + swir1_data + swir2_data))
 
-    print("nwi completed")
+    print("NWI completed")
 
     geoserver_layer_name = save_and_upload_result(band_files['blue'], blue_transform, nwi)
 
     return geoserver_layer_name
 
 
-def calculate_awei_nsh(image_type, time, coordinates):
+def calculate_awei_nsh(image_type: str, time: str, coordinates: list) -> str:
+    """
+    计算AWEInsh
+
+    参数:
+        image_type: 图像类型，如 'Landsat'
+        time: 时间标识，如202410
+        coordinates: 坐标列表，格式为 [[longitude, latitude], ...]
+
+    返回:
+        上传的图层在用户工作区中的完整标识，格式为 'workspace:layer_name'
+    """
 
     bands = {'green', 'swir1', 'nir', 'swir2'}
 
@@ -140,7 +174,18 @@ def calculate_awei_nsh(image_type, time, coordinates):
     return geoserver_layer_name
 
 
-def calculate_awei_sh(image_type, time, coordinates):
+def calculate_awei_sh(image_type: str, time: str, coordinates: list) -> str:
+    """
+    计算AWEIsh
+
+    参数:
+        image_type: 图像类型，如 'Landsat'
+        time: 时间标识，如202410
+        coordinates: 坐标列表，格式为 [[longitude, latitude], ...]
+
+    返回:
+        上传的图层在用户工作区中的完整标识，格式为 'workspace:layer_name'
+    """
     
     bands = {'blue', 'green', 'nir', 'swir1', 'swir2'}
 
@@ -188,7 +233,18 @@ def calculate_awei_sh(image_type, time, coordinates):
     return geoserver_layer_name
 
 
-def calculate_wi2015(image_type, time, coordinates):
+def calculate_wi2015(image_type: str, time: str, coordinates: list) -> str:
+    """
+    计算WI2015
+
+    参数:
+        image_type: 图像类型，如 'Landsat'
+        time: 时间标识，如202410
+        coordinates: 坐标列表，格式为 [[longitude, latitude], ...]
+
+    返回:
+        上传的图层在用户工作区中的完整标识，格式为 'workspace:layer_name'
+    """
     
     bands = {'green', 'red', 'nir', 'swir1', 'swir2'}
 
@@ -236,7 +292,18 @@ def calculate_wi2015(image_type, time, coordinates):
     return geoserver_layer_name
 
 
-def calculate_mbwi(image_type, time, coordinates):
+def calculate_mbwi(image_type: str, time: str, coordinates: list) -> str:
+    """
+    计算MBWI
+
+    参数:
+        image_type: 图像类型，如 'Landsat'
+        time: 时间标识，如202410
+        coordinates: 坐标列表，格式为 [[longitude, latitude], ...]
+
+    返回:
+        上传的图层在用户工作区中的完整标识，格式为 'workspace:layer_name'
+    """
     
     bands = {'red', 'nir', 'swir1', 'tir1', 'swir2'}
 
@@ -284,7 +351,18 @@ def calculate_mbwi(image_type, time, coordinates):
     return geoserver_layer_name
 
 
-def calculate_ndmbwi(image_type, time, coordinates):
+def calculate_ndmbwi(image_type: str, time: str, coordinates: list) -> str:
+    """
+    计算NDMBWI
+
+    参数:
+        image_type: 图像类型，如 'Landsat'
+        time: 时间标识，如202410
+        coordinates: 坐标列表，格式为 [[longitude, latitude], ...]
+
+    返回:
+        上传的图层在用户工作区中的完整标识，格式为 'workspace:layer_name'
+    """
     
     bands = {'green', 'blue', 'red', 'nir'}
 
@@ -331,7 +409,18 @@ def calculate_ndmbwi(image_type, time, coordinates):
     return geoserver_layer_name
 
 
-def calculate_grnwi(image_type, time, coordinates):
+def calculate_grnwi(image_type: str, time: str, coordinates: list) -> str:
+    """
+    计算GRN-WI
+
+    参数:
+        image_type: 图像类型，如 'Landsat'
+        time: 时间标识，如202410
+        coordinates: 坐标列表，格式为 [[longitude, latitude], ...]
+
+    返回:
+        上传的图层在用户工作区中的完整标识，格式为 'workspace:layer_name'
+    """
     
     bands = {'green', 'red', 'nir'}
 
@@ -362,21 +451,40 @@ def calculate_grnwi(image_type, time, coordinates):
     # 计算 GRNWI 指数
     grnwi = green_data + red_data - 2 * nir_data
 
-    print("GRNWI completed")
+    print("GRN-WI completed")
 
     geoserver_layer_name = save_and_upload_result(band_files['green'], green_transform, grnwi)
 
     return geoserver_layer_name
 
 
-def create_polygon_from_points(points):
+def create_polygon_from_points(points: list) -> Polygon:
+    """
+    从点列表创建多边形
+
+    参数:
+        points: 点列表，格式为[[longitude, latitude], ...]
+
+    返回:
+        多边形
+    """
     # 将点列表转换为Shapely多边形
     polygon = Polygon(points)
-    # print(polygon)
     return polygon
 
 
-def save_and_upload_result(image_src, transform, data):
+def save_and_upload_result(image_src: str, transform : rasterio.transform.Affine, data: np.ndarray) -> str:
+    """
+    保存和上传结果
+
+    参数:
+        image_src: 输入影像的路径
+        transform: 与影像相关的空间变换
+        data: 计算得到的数据数组
+
+    返回:
+        str: 上传的图层名称
+    """
     if not os.path.exists(TEMP_PATH):
         os.makedirs(TEMP_PATH)
 

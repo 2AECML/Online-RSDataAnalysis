@@ -1,6 +1,7 @@
 import os
 from pyproj import Proj, transform
 
+
 # 定义全局变量 DATA_PATH
 DATA_PATH = 'D:/VSCode/Commission/20240902/data/'
 
@@ -38,9 +39,16 @@ BAND_MAP = {
     }
 }
 
-def get_available_dates(image_type):
+
+def get_available_dates(image_type: str) -> list[dict]:
     """
     获取指定影像类型中的可用年份与月份
+
+    参数:
+        image_type: 图像类型，如 'Landsat'
+
+    返回:
+        表示可用年份于月份的字典列表，如{'year': 2024, 'month': 10}
     """
 
     path = os.path.join(DATA_PATH, image_type)
@@ -68,7 +76,17 @@ def get_available_dates(image_type):
     return image_dates
 
 
-def get_available_images(image_type, date) :
+def get_available_images(image_type: str, date: str) -> list:
+    """
+    获得可用图像列表
+
+    参数:
+        image_type: 图像类型，如 'Landsat'
+        date: 时间标识，如202410
+    
+    返回:
+        可用图像文件名列表
+    """
     path = os.path.join(DATA_PATH, image_type, date)
 
     if not os.path.isdir(path):
@@ -83,22 +101,25 @@ def get_available_images(image_type, date) :
     return images
 
     
-def get_band_files(image_type, time, bands):
+def get_band_files(image_type: str, date: str, bands: set) -> dict:
     """
-    返回指定波段文件路径
-    :param image_type: 图像类型，如 'Landsat'
-    :param time: 时间标识
-    :param bands: 字典，指定指数计算所需的波段 {波段名称: 波段号}
-                  例如，NDWI 可传 {'red', 'nir'}
-    :return: 对应波段文件路径字典
+    获得指定波段文件路径
+
+    参数:
+        image_type: 图像类型，如 'Landsat'
+        date: 时间标识，如202410
+        bands: 集合，指定指数计算所需的波段名称，如 {'green', 'swir1', 'nir'}
+    
+    返回:
+        对应波段文件路径字典
     """
     # 根据时间和图像类型构建文件夹路径
-    folder = os.path.join(DATA_PATH, image_type, time)
+    folder = os.path.join(DATA_PATH, image_type, date)
     folder = os.path.normpath(folder)
 
     print(folder)
 
-    abbreviation = getAbbreviation(image_type)
+    abbreviation = get_abbreviation(image_type)
 
     # 获取当前图像类型的波段号
     if image_type not in BAND_MAP:
@@ -111,14 +132,23 @@ def get_band_files(image_type, time, bands):
     for band_name in bands:
         if band_name in bands_with_numbers:
             band_number = bands_with_numbers[band_name]
-            band_files[band_name] = os.path.join(folder, f"{abbreviation}_{time}_B{band_number}.TIF")
+            band_files[band_name] = os.path.join(folder, f"{abbreviation}_{date}_B{band_number}.TIF")
         else:
             raise ValueError(f"Unsupported band: {band_name} for image type: {image_type}")
 
     return band_files
 
 
-def getAbbreviation(image_type):
+def get_abbreviation(image_type: str) -> str:
+    """
+    获取图像类型的简称
+
+    参数:
+        image_type: 图像类型
+
+    返回:
+        该图像类型对应的简称
+    """
     if (image_type == 'Landsat'): 
         return 'LAND'
     elif (image_type == 'MODIS'):
@@ -127,17 +157,17 @@ def getAbbreviation(image_type):
         return 'SENT'
     
 
-def convert_coordinates(src_crs, target_crs, coords):
+def convert_coordinates(src_crs: str, target_crs: str, coords: list) -> list:
     """
     将坐标从一个坐标系转换为另一个坐标系。
 
     参数:
-        src_crs (str): 原始坐标系的 EPSG 代码，例如 'epsg:4326'。
-        target_crs (str): 目标坐标系的 EPSG 代码，例如 'epsg:32649'。
-        coords (list): 坐标列表，格式为 [[longitude, latitude], ...].
+        src_crs: 原始坐标系的 EPSG 代码，例如 'epsg:4326'
+        target_crs: 目标坐标系的 EPSG 代码，例如 'epsg:32649'
+        coords: 坐标列表，格式为 [[longitude, latitude], ...]
 
     返回:
-        list: 目标坐标系的坐标列表，格式为 [[easting, northing], ...].
+        目标坐标系的坐标列表，格式为 [[easting, northing], ...]
     """
     # 定义坐标系
     wgs84 = Proj(src_crs)  # 原始坐标系
