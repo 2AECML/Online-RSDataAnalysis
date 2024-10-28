@@ -1,7 +1,9 @@
+# geoserver_interaction.py
 from geo.Geoserver import Geoserver
 import os
 import uuid
 import rasterio
+
 
 SERVICE_URL = 'http://localhost:8080/geoserver'
 USER_NAME = 'admin'
@@ -10,6 +12,7 @@ USER_WORKSPACE = 'user_cal_res'
 LOCAL_WORKSPACE = 'local'
 LOCAL_DATA_PATH = 'data'
 GEOSERVER_DATA_PATH = 'D:/GeoServer/data_dir/data'
+
 
 geo = Geoserver(SERVICE_URL, username=USER_NAME, password=PASSWORD)
 
@@ -25,11 +28,18 @@ def upload_local_geotiffs() -> None:
     """
     create_workspace_if_not_exists(LOCAL_WORKSPACE)
 
+    existing_layers_name = get_existing_layers_name(LOCAL_WORKSPACE)
+
     for root, dirs, files in os.walk(LOCAL_DATA_PATH):
         for file in files:
             file_path = os.path.join(root, file)
             layer_name = os.path.basename(file_path)
+            if (layer_name in existing_layers_name):
+                print(f"图层 '{layer_name}' 已存在，跳过上传。")
+                continue
+            print(f"正在上传图层 '{layer_name}'...")
             geo.create_coveragestore(layer_name=layer_name, path=file_path, workspace=LOCAL_WORKSPACE)
+            print(f"已上传图层 '{layer_name}'。")
 
 
 def upload_user_geotiff(file_path: str) -> str:
@@ -104,11 +114,26 @@ def get_geotiff_metadata(file_path: str) -> dict:
         file_path: GeoTIFF 文件的完整路径
 
     返回:
-        dict: 包含文件元数据的字典
+        包含文件元数据的字典
     """
     with rasterio.open(file_path) as src:
         metadata = src.meta
     return metadata
 
 
-upload_local_geotiffs()
+def get_existing_layers_name(workspace: str) -> list[str]:
+    """
+    获取指定工作空间的所有已存在的图层名称
+
+    参数:
+        workspace: 指定的工作空间
+    
+    返回:
+        字符串列表
+    """
+    layers_name = []
+    for layer in geo.get_layers(workspace)['layers']['layer']:
+        layers_name.append(layer['name'])
+    return layers_name
+
+

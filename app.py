@@ -1,7 +1,9 @@
+# app.py
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import processor
 import data_manager
+import geoserver_interaction
 
 
 app = Flask(__name__)
@@ -124,5 +126,7 @@ def process_calculations(image_type: str, time: str, coordinates: list, calculat
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    geoserver_interaction.upload_local_geotiffs()
+
+    app.run(debug=False)
 

@@ -11,6 +11,7 @@ import geoserver_interaction
 import os
 import tempfile
 
+
 matplotlib.use('Agg')
 
 DATA_PATH = 'data/'
