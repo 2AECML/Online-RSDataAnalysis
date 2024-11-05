@@ -51,7 +51,6 @@ def get_available_dates(image_type: str) -> list[dict]:
     返回:
         表示可用年份于月份的字典列表，如{'year': 2024, 'month': 10}
     """
-
     path = os.path.join(DATA_PATH, image_type)
     
     if not os.path.isdir(path):

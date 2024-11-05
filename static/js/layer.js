@@ -56,13 +56,14 @@ var remoteSource = new ol.source.TileWMS({
     params: {
         'TILED': true
     },
-    serverType: 'geoserver',
-})
+    serverType: 'geoserver'
+});
 
 
 const remoteLayer = new ol.layer.Tile({
     source: remoteSource,
-    zIndex: 5
+    zIndex: 5,
+    opacity: 0.85
 });
 
 

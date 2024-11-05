@@ -126,7 +126,9 @@ def process_calculations(image_type: str, time: str, coordinates: list, calculat
 
 
 if __name__ == '__main__':
-    geoserver_interaction.upload_local_geotiffs()
+    geoserver_interaction.clear_user_geotiffs()
+    geoserver_interaction.downsample_and_upload_geotiffs()
 
     app.run(debug=False)
+
 
