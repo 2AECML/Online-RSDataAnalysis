@@ -1,3 +1,4 @@
+// selection.js
 
 
 function startSelection() {
@@ -110,7 +111,7 @@ function showResult(response) {
 
         const resultLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
-                url: 'http://localhost:8080/geoserver/wms',
+                url: `${serverAddress}:${geoServerPort}/geoserver/wms`,
                 params: {
                     'LAYERS': geoserverLayerName,
                     'TILED': true
@@ -131,9 +132,9 @@ function showResult(response) {
 
         const curTime = `${hours}:${minutes}:${seconds}`; // 结果格式为 HH-MM-SS
 
-        const fileName = `${calculateType}-${imageType}-${time}-${curTime}.tif`
+        const fileName = `${calculateType}-${imageType}-${time}-${curTime}.tif`;
 
-        const downloadUrl = `http://localhost:8080/geoserver/wcs?service=WCS&version=2.0.1&request=GetCoverage&coverageId=${geoserverLayerName}&format=image/tiff&filename=${fileName}`
+        const downloadUrl = `${serverAddress}:${geoServerPort}/geoserver/wcs?service=WCS&version=2.0.1&request=GetCoverage&coverageId=${geoserverLayerName}&format=image/tiff&filename=${fileName}`;
         const downloadButton = $('<a>', {
             href: downloadUrl,
             text: '🔽',

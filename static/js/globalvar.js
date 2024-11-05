@@ -1,5 +1,12 @@
 // calinfo.js
 
+
+// 服务端的地址
+var serverAddress = window.location.protocol + "//" + window.location.hostname
+
+// GeoServer的端口号
+var geoServerPort = 8080
+
 // 计算信息
 var calInfo = calInfo || {};
 calInfo.calculateTypes = new Set([]);

@@ -3,7 +3,7 @@
 
 const provincialLayer = new ol.layer.Tile({
     source: new ol.source.TileWMS({
-        url: 'http://localhost:8080/geoserver/wms',
+        url: `${serverAddress}:${geoServerPort}/geoserver/wms`,
         params: {
             'LAYERS': 'local:省级',
             'TILED': true
@@ -17,7 +17,7 @@ const provincialLayer = new ol.layer.Tile({
 
 const prefecturalLayer = new ol.layer.Tile({
     source: new ol.source.TileWMS({
-        url: 'http://localhost:8080/geoserver/wms',
+        url: `${serverAddress}:${geoServerPort}/geoserver/wms`,
         params: {
             'LAYERS': 'local:地级',
             'TILED': true
@@ -31,7 +31,7 @@ const prefecturalLayer = new ol.layer.Tile({
 
 const countyLayer = new ol.layer.Tile({
     source: new ol.source.TileWMS({
-        url: 'http://localhost:8080/geoserver/wms',
+        url: `${serverAddress}:${geoServerPort}/geoserver/wms`,
         params: {
             'LAYERS': 'local:县级',
             'TILED': true
@@ -52,7 +52,7 @@ const imageLayer = new ol.layer.Tile({
 
 
 var remoteSource = new ol.source.TileWMS({
-    url: 'http://localhost:8080/geoserver/wms',
+    url: `${serverAddress}:${geoServerPort}/geoserver/wms`,
     params: {
         'TILED': true
     },
