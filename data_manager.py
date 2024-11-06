@@ -4,7 +4,7 @@ from pyproj import Proj, transform
 
 
 # 定义全局变量 DATA_PATH
-DATA_PATH = 'D:/VSCode/Commission/20240902/data/'
+DATA_PATH = 'data/'
 
 BAND_MAP = {
     'Landsat': {

@@ -14,9 +14,6 @@ PASSWORD = 'geoserver'
 USER_WORKSPACE = 'user_cal_res'
 LOCAL_WORKSPACE = 'local'
 LOCAL_DATA_PATH = 'data'
-GEOSERVER_DATA_PATH = 'D:/GeoServer/data_dir/data'
-MAX_THUMBNAIL_WIDTH = 128
-MAX_THUMBNAIL_HEIGHT = 128
 TEMP_PATH = 'temp/'
 
 geo = Geoserver(SERVICE_URL, username=USER_NAME, password=PASSWORD)

@@ -172,7 +172,7 @@ function setupLayerToggle() {
             };
             toggleLayer(layerMap[id]);
         }
-        else if (/^LAND*/.test(id)) {
+        else if (/^LAND*|SENT*|MODS*/.test(id)) {
             // 处理遥感图层
             map.removeLayer(remoteLayer);
             if (id === curLayerName) {
