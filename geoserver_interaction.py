@@ -3,6 +3,7 @@ from geo.Geoserver import Geoserver
 import os
 import uuid
 import rasterio
+import rasterio.enums
 import schedule
 import threading
 import time
@@ -13,7 +14,7 @@ USER_NAME = 'admin'
 PASSWORD = 'geoserver'
 USER_WORKSPACE = 'user_cal_res'
 LOCAL_WORKSPACE = 'local'
-LOCAL_DATA_PATH = 'data'
+LOCAL_DATA_PATH = 'data/'
 TEMP_PATH = 'temp/'
 
 geo = Geoserver(SERVICE_URL, username=USER_NAME, password=PASSWORD)
@@ -44,77 +45,57 @@ def upload_local_geotiffs() -> None:
             print(f"已上传图层 '{layer_name}'。")
 
 
-def downsample_and_upload_geotiffs() -> None:
+def generate_pyramids_and_upload_geotiffs() -> None:
     """
-    降低本地 GeoTIFF 文件的分辨率并上传到指定工作区
+    为本地 GeoTIFF 文件生成金字塔层，并上传到指定工作区。
 
-    此函数会遍历 LOCAL_DATA_PATH 目录及其子目录，找到所有文件，并将每个文件的分辨率降低后上传到指定的工作区。
+    此函数会遍历 LOCAL_DATA_PATH 目录及其子目录，找到所有 TIFF 文件，
+    确保 NoData 值设置正确，将其金字塔层嵌入到文件中后上传到指定的工作区。
 
     返回:
         None
     """
     create_workspace_if_not_exists(LOCAL_WORKSPACE)
-
     existing_layers_name = get_existing_layers_name(LOCAL_WORKSPACE)
 
     for root, dirs, files in os.walk(LOCAL_DATA_PATH):
         for file in files:
             file_path = os.path.join(root, file)
-            layer_name = os.path.basename(file_path)  # 获取带扩展名的图层名称
-            
+            layer_name = os.path.basename(file_path)
+
             if layer_name in existing_layers_name:
                 print(f"图层 '{layer_name}' 已存在，跳过上传。")
                 continue
-            
-            # 确保只处理 TIFF 文件
+
+            # 仅处理 TIFF 文件
             if file.lower().endswith('.tif') or file.lower().endswith('.tiff'):
                 print(f"开始处理文件: {file_path}")
-                with rasterio.open(file_path) as src:
+                
+                with rasterio.open(file_path, 'r+') as src:
                     print(f"读取文件成功: {file_path}")
-                    print("重采样中...")
+                    print("检查和设置 NoData 值...")
 
-                    # 获取原始元数据信息
-                    meta = src.meta.copy()
-                    
-                    # 计算新的宽度和高度（比如降低为原来的1/10）
-                    new_width = int(meta['width'] / 10)
-                    new_height = int(meta['height'] / 10)
+                    # 设置 NoData 值，如果尚未定义
+                    if src.nodata is None:
+                        src.nodata = 0  # 根据实际情况设置合适的 NoData 值
+                        print(f"已设置 NoData 值为 {src.nodata}")
 
-                    # 更新元数据以反映新的分辨率
-                    meta.update({
-                        'width': new_width,
-                        'height': new_height,
-                        'transform': rasterio.transform.from_origin(
-                            meta['transform'][2], meta['transform'][5],  # 左上角坐标
-                            meta['transform'][0] * 10,                 # 新像素宽度
-                            -meta['transform'][4] * 10                  # 新像素高度为负
-                        ),
-                    })
-
-                    # 生成新的低分辨率 TIFF 文件路径
-                    downsampled_tif_path = os.path.join(TEMP_PATH, f"{layer_name}")  # 保留扩展名
-                    with rasterio.open(downsampled_tif_path, 'w', **meta) as dst:
-                        # 逐波段读写数据，并进行重采样
-                        for i in range(1, src.count + 1):
-                            data = src.read(i)
-                            data_downsampled = data[::10]
-                            
-                            dst.write(data_downsampled, i)
-                    print(f"已生成低分辨率文件: {downsampled_tif_path}")
-
-                # 通过 geo 对象上传低分辨率 TIFF 文件
-                print(f"正在上传低分辨率 TIFF 文件 '{downsampled_tif_path}' ...")
+                    print("生成嵌入金字塔层级 (overviews)...")
+                    factors = [2, 4, 8, 16]
+                    src.build_overviews(factors, rasterio.enums.Resampling.bilinear)
+                    src.update_tags(ns='rio_overview', resampling='bilinear')
+                
+                print(f"正在上传包含金字塔的 TIFF 文件 '{file_path}' ...")
                 try:
-                    geo.create_coveragestore(layer_name=layer_name, path=downsampled_tif_path, workspace=LOCAL_WORKSPACE)
-                    print(f"已上传低分辨率 TIFF 文件 '{downsampled_tif_path}'。")
+                    geo.create_coveragestore(
+                        layer_name=layer_name,
+                        path=file_path,
+                        workspace=LOCAL_WORKSPACE
+                    )
+                    print(f"已上传包含金字塔的 TIFF 文件 '{file_path}'。")
                 except Exception as e:
                     print(f"上传失败: {e}")
                     print(f"错误类型: {type(e).__name__}，内容: {str(e)}")
-                finally:
-                    # 上传完成后自动删除临时文件
-                    if os.path.exists(downsampled_tif_path):
-                        os.remove(downsampled_tif_path)
-                        print(f"已删除临时文件: {downsampled_tif_path}")
 
             else:
                 print(f"跳过非 TIFF 文件: {file_path}")

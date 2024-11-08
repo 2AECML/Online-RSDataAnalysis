@@ -36,7 +36,12 @@ BAND_MAP = {
         'swir2': '12',
     },
     'MODIS': {
-
+        'red': '1',
+        'nir': '2',
+        'blue': '3',
+        'green': '4',
+        'swir1': '6',
+        'swir2': 7
     }
 }
 

@@ -54,16 +54,17 @@ const imageLayer = new ol.layer.Tile({
 var remoteSource = new ol.source.TileWMS({
     url: `${serverAddress}:${geoServerPort}/geoserver/wms`,
     params: {
-        'TILED': true
+        'TILED': true,
+        'FORMAT': 'image/png',
     },
-    serverType: 'geoserver'
+    serverType: 'geoserver',
+    transition: 0 
 });
 
 
 const remoteLayer = new ol.layer.Tile({
     source: remoteSource,
     zIndex: 5,
-    opacity: 0.85
 });
 
 
@@ -172,7 +173,7 @@ function setupLayerToggle() {
             };
             toggleLayer(layerMap[id]);
         }
-        else if (/^LAND*|SENT*|MODS*/.test(id)) {
+        else if (/^LAND*/.test(id)) {
             // 处理遥感图层
             map.removeLayer(remoteLayer);
             if (id === curLayerName) {
@@ -187,6 +188,42 @@ function setupLayerToggle() {
                 map.addLayer(remoteLayer);
                 console.log('切换遥感图层:', curLayerName);
                 calInfo.imageType = 'Landsat';
+                calInfo.time = curLayerName.split('_')[1];
+            }
+        }
+        else if (/^SENT*/.test(id)) {
+            // 处理遥感图层
+            map.removeLayer(remoteLayer);
+            if (id === curLayerName) {
+                curLayerName = '';
+                remoteSource.updateParams({ 'LAYERS': '' });
+                calInfo.imageType = '';
+                calInfo.time = '';
+            }
+            else {
+                curLayerName = id;
+                remoteSource.updateParams({ 'LAYERS': 'local:' + curLayerName });
+                map.addLayer(remoteLayer);
+                console.log('切换遥感图层:', curLayerName);
+                calInfo.imageType = 'Sentinel';
+                calInfo.time = curLayerName.split('_')[1];
+            }
+        }
+        else if (/^MODS*/.test(id)) {
+            // 处理遥感图层
+            map.removeLayer(remoteLayer);
+            if (id === curLayerName) {
+                curLayerName = '';
+                remoteSource.updateParams({ 'LAYERS': '' });
+                calInfo.imageType = '';
+                calInfo.time = '';
+            }
+            else {
+                curLayerName = id;
+                remoteSource.updateParams({ 'LAYERS': 'local:' + curLayerName });
+                map.addLayer(remoteLayer);
+                console.log('切换遥感图层:', curLayerName);
+                calInfo.imageType = 'MODIS';
                 calInfo.time = curLayerName.split('_')[1];
             }
         }
