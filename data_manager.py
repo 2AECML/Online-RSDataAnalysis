@@ -33,7 +33,7 @@ BAND_MAP = {
         'wv': '9',
         'cirrus': '10',
         'swir1': '11',
-        'swir2': '12',
+        'swir2': '12'
     },
     'MODIS': {
         'red': '1',
@@ -41,7 +41,7 @@ BAND_MAP = {
         'blue': '3',
         'green': '4',
         'swir1': '6',
-        'swir2': 7
+        'swir2': '7'
     }
 }
 

@@ -196,7 +196,13 @@ def get_existing_layers_name(workspace: str) -> list[str]:
     return layers_name
 
 
-def clear_user_geotiffs():
+def clear_user_geotiffs() -> None:
+    """
+    清理用户生成的图层
+
+    返回:
+        None
+    """
     print("清理用户的 GeoTIFF 文件...")
     try:
         workspaces = geo.get_workspaces()
@@ -214,8 +220,14 @@ def clear_user_geotiffs():
         print(f"Error deleting workspace: {e}")
 
 
-# 定义定时任务函数
-def schedule_task():
+
+def schedule_task() -> None:
+    """
+    定时清理用户生成的图层
+
+    返回:
+        None
+    """
     schedule.every().day.at("04:00").do(clear_user_geotiffs)
     
     while True:
@@ -227,3 +239,4 @@ def schedule_task():
 task_thread = threading.Thread(target=schedule_task)
 task_thread.daemon = True  # 确保主线程退出时，定时任务线程也能停止
 task_thread.start()
+
