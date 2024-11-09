@@ -38,7 +38,8 @@ $(document).ready(function () {
         }
         else {
             if (!$(event.target).is('#VectorLayerHeader *') && !$(event.target).is("#RasterLayerHeader *")) {
-                $(this).parent().children().removeClass('active');
+                $('.band-list li').removeClass('active');
+                $('.band-header').removeClass('list-item-active');
             }
             else {
                 if ($(event.target).is('#VectorLayerHeader *')) ++curVectorLayerNum;
